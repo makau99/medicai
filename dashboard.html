@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>User Dashboard</title>
+  <link rel="stylesheet" href="dashboard.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div class="dashboard">
+    <div class="navbar">
+      <img src="icon.png" alt="MedicAI" class="icon" />
+      <ul>
+        <li><a href="appointments.html">APPOINTMENTS</a></li>
+        <li><a href="triage.html">TRIAGE</a></li>
+        <li><a href="maps.html">LOCATIONS</a></li>
+        <div class="user-icon" id="dashboardIcon" title="Your Dashboard">
+            <span id="userInitials">U</span>
+        </div>
+
+      </ul>
+    </div>
+
+    <div class="content">
+      <h1 class="section-title">Your Profile</h1>
+      <div class="glass-card" style="margin:auto; max-width:500px;">
+        <p><strong>Name:</strong> <span id="u-name"></span></p>
+        <p><strong>Email:</strong> <span id="u-email"></span></p>
+        <p><strong>Age:</strong> <span id="u-age"></span></p>
+        <p><strong>Gender:</strong> <span id="u-gender"></span></p>
+      </div>
+
+      <div class="card-section">
+        <h2>Past Diagnoses</h2>
+        <div class="card-list">
+          <div class="glass-card">
+            <h3>Headache & Nausea</h3>
+            <p>Diagnosed: May 12, 2025</p>
+            <p>Advice: Drink fluids, rest, and monitor symptoms.</p>
+          </div>
+          <div class="glass-card">
+            <h3>Seasonal Allergy</h3>
+            <p>Diagnosed: Apr 3, 2025</p>
+            <p>Advice: Take antihistamines, avoid pollen-heavy areas.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-section">
+        <h2>Appointment History</h2>
+        <div class="card-list">
+          <div class="glass-card">
+            <h3>General Check-up</h3>
+            <p>Date: May 20, 2025</p>
+            <p>Status: Completed</p>
+          </div>
+          <div class="glass-card">
+            <h3>Dermatologist Visit</h3>
+            <p>Date: Mar 15, 2025</p>
+            <p>Status: Completed</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Supabase JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const supabase = window.supabase.createClient(
+      'https://zzwdnekgsdyxdzyhuafk.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6d2RuZWtnc2R5eGR6eWh1YWZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI1ODM4MjcsImV4cCI6MjA2ODE1OTgyN30.Bw3UgVe_RjvX_HfxEn1HrPkzJ6N4KpIFahKe0lxMSmg'
+    );
+
+    // Get user from localStorage
+    const user = JSON.parse(localStorage.getItem('user'));
+
+    if (!user) {
+      alert('No user found. Redirecting to login...');
+      window.location.href = 'login.html';
+    } else {
+      // Fill in profile info
+      document.getElementById('u-name').textContent = user.name || '';
+      document.getElementById('u-email').textContent = user.email || '';
+      document.getElementById('u-age').textContent = user.age || '';
+      document.getElementById('u-gender').textContent = user.gender || '';
+    }
+
+    // Logout logic
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await supabase.auth.signOut();
+      localStorage.removeItem('user');
+      window.location.href = 'login.html';
+    });
+  </script>
+</body>
+</html>

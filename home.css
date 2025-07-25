@@ -1,0 +1,139 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Quicksand', sans-serif;
+}
+
+body {
+  background-image: url('images/liquid-cheese.png');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+}
+
+.navbar {
+  height: 70px;
+  width: 100%;
+  padding: 20px 5%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 999;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.icon {
+  width: 150px;
+}
+
+.navbar ul {
+  display: flex;
+  gap: 40px;
+  list-style: none;
+}
+
+.navbar ul li a {
+  text-decoration: none;
+  color: #572717;
+  font-size: 18px;
+  text-transform: uppercase;
+}
+
+.navbar ul li a:hover {
+  color: rgb(100, 100, 214);
+}
+
+.logbut {
+  background-color: transparent;
+  height: 40px;
+  border-radius: 20px;
+  width: 100px;
+  cursor: pointer;
+  font-size: 15px;
+  border: 1px solid #572717;
+  color: #572717;
+  transition: 0.3s;
+}
+
+.logbut:hover {
+  background-color: #572717;
+  color: white;
+}
+
+
+.feature-scroll {
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+}
+
+
+.feature-card {
+  height: 90vh;
+  width: 85%;
+  max-width: 1000px;
+  margin: 5vh auto;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.25);
+  padding: 2rem;
+  text-align: center;
+  box-sizing: border-box;
+  transition: transform 0.6s ease, background 0.3s ease;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 25px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+  scroll-margin-top: 80px;
+}
+
+.feature-card:hover {
+  transform: scale(1.03);
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.feature-card img {
+  width: 60%;
+  max-height: 300px;
+  object-fit: contain;
+  margin-bottom: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.feature-card h1 {
+  font-size: clamp(2rem, 5vw, 3rem);
+  margin-bottom: 1rem;
+  color: #005f73;
+}
+
+.feature-card p {
+  font-size: 1.2rem;
+  max-width: 600px;
+  margin-bottom: 2rem;
+}
+
+.card-btn {
+  padding: 0.8rem 2rem;
+  font-size: 1rem;
+  border-radius: 30px;
+  background-color: #005f73;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.3s ease, background 0.3s ease;
+}
+
+.card-btn:hover {
+  transform: scale(1.1);
+  background-color: #0a9396;
+}

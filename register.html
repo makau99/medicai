@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sign Up</title>
+  <link href="register.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div class="register">
+    <div class="navbar">
+      <img src="icon.png" alt="MedicAI" class="icon" />
+      <ul>
+        <li><a href="home.html">HOME</a></li>
+        <li><a href="triage.html">TRIAGE</a></li>
+        <li><a href="maps.html">LOCATIONS</a></li>
+        <li><a href="about.html">ABOUT</a></li>
+      </ul>
+    </div>
+
+    <div class="regform">
+      <h1>Sign Up</h1>
+
+      <input class="input" type="text" id="name" placeholder="Full Name" required />
+      <input class="input" type="number" id="age" placeholder="Age" required />
+
+      <select id="gender" required>
+        <option disabled selected>Gender</option>
+        <option value="Male">Male</option>
+        <option value="Female">Female</option>
+        <option value="n/a">Prefer not to say</option>
+      </select>
+
+      <input class="input" type="email" id="email" placeholder="E-mail address" required />
+      <input class="input" type="password" id="password" placeholder="Set password" required />
+
+      <button id="sign" type="button"><span></span>Sign Up</button>
+    </div>
+  </div>
+
+  <!-- Supabase Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const supabase = window.supabase.createClient(
+      'https://zzwdnekgsdyxdzyhuafk.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6d2RuZWtnc2R5eGR6eWh1YWZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI1ODM4MjcsImV4cCI6MjA2ODE1OTgyN30.Bw3UgVe_RjvX_HfxEn1HrPkzJ6N4KpIFahKe0lxMSmg'
+    );
+  </script>
+
+  <!-- Registration Logic -->
+  <script>
+    document.getElementById('sign').addEventListener('click', async function () {
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const name = document.getElementById('name').value.trim();
+      const age = parseInt(document.getElementById('age').value.trim());
+      const gender = document.getElementById('gender').value;
+
+      const { data, error } = await supabase.auth.signUp({ email, password });
+
+      if (error) {
+        alert("Signup failed: " + error.message);
+        return;
+      }
+
+      const user_id = data.user.id;
+
+      await supabase.from('profiles').insert([{ id: data.user.id, email, name, age, gender}]);
+
+      alert("Check your email to confirm signup.");
+      window.location.href = 'login.html';
+    });
+  </script>
+</body>
+</html>

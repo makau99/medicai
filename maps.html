@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Nearby Hospitals Map</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="maps.css" />
+</head>
+<body>
+  <!-- Navbar -->
+  <div class="navbar">
+    <img src="icon.png" alt="MedicAI" class="icon" />
+    <ul>
+      <li><a href="home.html">HOME</a></li>
+      <li><a href="triage.html">TRIAGE</a></li>
+      <li><a href="maps.html">LOCATIONS</a></li>
+      <li><a href="about.html">ABOUT</a></li>
+    </ul>
+    <a href="login.html"><button class="logbut">Login</button></a>
+  </div>
+
+  <!-- ... inside body ... -->
+  <!-- Map Card -->
+  <div class="map-card">
+    <h2>Find Nearby Hospitals</h2>
+    <div id="map"></div>
+    <div class="controls">
+      <button onclick="loadHospitals()">Find Nearby Hospitals</button>
+      <select id="hospitalSelect">
+        <option>Select hospital to navigate</option>
+      </select>
+      <button onclick="openDirections()">Get Directions</button>
+      <button onclick="gotoAppointments()">Book Appointment</button>
+      <div id="statusMessage" class="status-message"></div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    2025© MediConnect AI
+  </footer>
+
+  <!-- Scripts -->
+  <script>
+    let map;
+    let userLocation;
+    let userMarker;
+    let watchId;
+    let markers = [];
+    const radiusKm = 50;
+
+    const haversine = (lat1, lon1, lat2, lon2) => {
+      const toRad = deg => deg * Math.PI / 180;
+      const R = 6371;
+      const dLat = toRad(lat2 - lat1);
+      const dLon = toRad(lon2 - lon1);
+      const a = Math.sin(dLat/2)**2 +
+                Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+                Math.sin(dLon/2)**2;
+      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    };
+
+    const clearMarkers = () => {
+      markers.forEach(marker => marker.setMap(null));
+      markers = [];
+    };
+
+    async function loadHospitals() {
+      if (!userLocation) {
+        alert("User location not available.");
+        return;
+      }
+
+      clearMarkers();
+      const response = await fetch("mygeodata/kenya_hospitals_per_county.geojson");
+      if (!response.ok) {
+        alert("Could not load hospital data.");
+        return;
+      }
+
+      const geojson = await response.json();
+      const hospitalList = document.getElementById("hospitalSelect");
+      hospitalList.innerHTML = '<option>Select hospital to navigate</option>';
+      let nearest = null;
+      let nearestDistance = Infinity;
+      let foundCount = 0;
+
+      geojson.features.forEach((feature) => {
+        const [lng, lat] = feature.geometry.coordinates;
+        const props = feature.properties || {};
+        const name = props.Name || props.name || "Unnamed Hospital";
+
+        const distance = haversine(userLocation.lat, userLocation.lng, lat, lng);
+        if (distance > radiusKm) return;
+
+        foundCount++;
+        if (distance < nearestDistance) {
+          nearestDistance = distance;
+          nearest = `${lat},${lng}`;
+        }
+
+        const marker = new google.maps.Marker({
+          position: { lat, lng },
+          map: map,
+          title: name
+        });
+
+        const infoWindow = new google.maps.InfoWindow({
+          content: `<strong>${name}</strong><br>${distance.toFixed(2)} km away`
+        });
+
+        marker.addListener("click", () => {
+          infoWindow.open(map, marker);
+        });
+
+        markers.push(marker);
+
+        const option = document.createElement("option");
+        option.value = `${lat},${lng}|${name}`;
+        option.textContent = `${name} (${distance.toFixed(1)} km)`;
+        hospitalList.appendChild(option);
+      });
+
+      const msgBox = document.getElementById("statusMessage");
+      msgBox.textContent = foundCount === 0
+        ? "No hospitals found nearby."
+        : `${foundCount} hospital(s) found nearby.`;
+
+      if (nearest) hospitalList.value = nearest;
+    }
+
+    function initMap() {
+      map = new google.maps.Map(document.getElementById("map"), {
+        center: { lat: 0, lng: 0 },
+        zoom: 13
+      });
+
+      watchId = navigator.geolocation.watchPosition(pos => {
+        userLocation = {
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude
+        };
+
+        if (!userMarker) {
+          userMarker = new google.maps.Marker({
+            position: userLocation,
+            map: map,
+            title: "You",
+            icon: {
+              path: google.maps.SymbolPath.CIRCLE,
+              scale: 8,
+              fillColor: "blue",
+              fillOpacity: 1,
+              strokeWeight: 2,
+              strokeColor: "white"
+            }
+          });
+          map.setCenter(userLocation);
+        } else {
+          userMarker.setPosition(userLocation);
+        }
+      }, () => {
+        alert("Geolocation permission denied.");
+      });
+    }
+
+    function openDirections() {
+      const hospitalSelect = document.getElementById("hospitalSelect");
+      const selectedValue = hospitalSelect.value;
+
+      if (!selectedValue || selectedValue.startsWith("Select")) {
+        alert("Please select a hospital.");
+        return;
+      }
+
+      const [lat, lng] = selectedValue.split("|")[0].split(",");
+      const url = `https://www.google.com/maps/dir/?api=1&origin=${userLocation.lat},${userLocation.lng}&destination=${lat},${lng}&travelmode=driving`;
+      window.location.href = url;
+    }
+
+    function gotoAppointments() {
+      const hospitalSelect = document.getElementById("hospitalSelect");
+      const selectedValue = hospitalSelect.value;
+
+      if (!selectedValue || selectedValue.startsWith("Select")) {
+        alert("Please select a hospital to book an appointment.");
+        return;
+      }
+
+      const name = selectedValue.split("|")[1];
+      const encodedName = encodeURIComponent(name);
+      window.location.href = `appointments.html?hospital=${encodedName}`;
+    }
+  </script>
+
+  <!-- Google Maps JS API -->
+  <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCvlo4bDfGM9o5gE8s0fi4c_L_9y5hokQw&callback=initMap">
+  </script>
+</body>
+</html>

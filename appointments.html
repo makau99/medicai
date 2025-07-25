@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Appointments</title>
+  <link rel="stylesheet" href="appointments.css">
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div class="navbar">
+    <img src="icon.png" alt="Logo" class="icon" />
+    <ul>
+      <li><a href="home.html">Home</a></li>
+      <li><a href="triage.html">Triage</a></li>
+      <li><a href="appointments.html" class="active">Appointments</a></li>
+      <li><a href="maps.html">Locations</a></li>
+    </ul>
+  <a href="dashboard.html" title="Your Dashboard">
+    <div class="user-icon" id="dashboardIcon">
+      <span id="userInitials">U</span>
+    </div>
+  </a>
+
+  </div>
+
+  <div class="content">
+    <h1 class="section-title">Upcoming Appointments</h1>
+
+    <div class="card-section">
+      <div class="card-list" id="appointment-list">
+
+      </div>
+    </div>
+
+    <div class="card-section">
+      <h2>Book New Appointment</h2>
+      <div class="glass-card" style="max-width: 400px; margin: auto;">
+        <input id="title" type="text" placeholder="Appointment Title" class="input" />
+        <input id="date" type="date" class="input" />
+        <select id="branch" class="input">
+          <option disabled selected>Select Hospital Branch</option>
+          <!-- Dynamic hospital options from map -->
+        </select>
+        <button id="createBtn">Create Appointment</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    2025© MediConnect AI
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const supabase = window.supabase.createClient(
+      'https://zzwdnekgsdyxdzyhuafk.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6d2RuZWtnc2R5eGR6eWh1YWZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI1ODM4MjcsImV4cCI6MjA2ODE1OTgyN30.Bw3UgVe_RjvX_HfxEn1HrPkzJ6N4KpIFahKe0lxMSmg'
+    );
+
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (!user) {
+      alert("User not logged in.");
+      window.location.href = 'login.html';
+    }
+
+    async function loadAppointments() {
+      const today = new Date().toISOString().split('T')[0];
+      const { data, error } = await supabase
+        .from('appointments')
+        .select('*')
+        .eq('user_id', user.id)
+        .gte('date', today)
+        .order('date', { ascending: true });
+
+      if (error) {
+        console.error("Error fetching appointments:", error.message);
+        return;
+      }
+
+      const list = document.getElementById('appointment-list');
+      list.innerHTML = '';
+      data.forEach(app => {
+        const card = document.createElement('div');
+        card.className = 'glass-card';
+        card.innerHTML = `
+          <h3>${app.title}</h3>
+          <p>Date: ${app.date}</p>
+          <p>Branch: ${app.branch}</p>
+          <p>Status: ${app.status}</p>
+        `;
+        list.appendChild(card);
+      });
+    }
+
+    loadAppointments();
+
+    document.getElementById('createBtn').addEventListener('click', async () => {
+      const title = document.getElementById('title').value.trim();
+      const date = document.getElementById('date').value;
+      const branch = document.getElementById('branch').value;
+
+      if (!title || !date || !branch) {
+        alert("Please fill in all fields.");
+        return;
+      }
+
+      const { data, error } = await supabase.from('appointments').insert([{
+        user_id: user.id,
+        title,
+        date,
+        branch,
+        status: 'Pending'
+      }]);
+
+      if (error) {
+        alert("Error booking appointment: " + error.message);
+        return;
+      }
+
+      document.getElementById('title').value = '';
+      document.getElementById('date').value = '';
+      document.getElementById('branch').selectedIndex = 0;
+      alert("Appointment booked!");
+      loadAppointments();
+    });
+
+// Load hospital branches dynamically from geojson used in locations
+//Get hospital from URL query if available
+    const urlParams = new URLSearchParams(window.location.search);
+    const preselectedHospital = urlParams.get('hospital');
+
+//Load hospital branches dynamically
+    fetch("mygeodata/kenya_hospitals_per_county.geojson")
+      .then(res => res.json())
+      .then(data => {
+        const select = document.getElementById("branch");
+        const names = new Set();
+        data.features.forEach(f => {
+          const name = f.properties?.Name;
+          if (name && !names.has(name)) {
+            names.add(name);
+            const option = document.createElement("option");
+            option.value = name;
+            option.textContent = name;
+            if (preselectedHospital && name.trim().toLowerCase() === preselectedHospital.trim().toLowerCase()) {
+              option.selected = true;
+            }
+            select.appendChild(option);
+          }
+        });
+      });
+
+  </script>
+</body>
+</html>
