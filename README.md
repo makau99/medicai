@@ -1,45 +1,96 @@
-MediConnect AI – Hospital Appointment & Triage System
-This is a school project built as a responsive web app that helps users:
+# 🏥 MediConnect AI – Hospital Appointment & Triage Web App
 
-Check symptoms through an AI-powered triage interface
+A responsive, student-built web application for booking hospital appointments, triaging symptoms, and locating nearby hospitals in Kenya. This system simplifies hospital access through an intuitive interface and integrated location intelligence.
 
-Find nearby hospitals using Google Maps
+---
 
-Book appointments directly through the app
+## 🚀 Features
 
-✨ Features
-User Authentication with Supabase
+- 🔐 **User Authentication** via Supabase
+- 🤖 **Symptom Checker (Triage)** powered by AI prompts
+- 🗺️ **Hospital Locator** using Google Maps and GeoJSON data
+- 📅 **Appointment Booking** with real-time Supabase integration
+- 🌐 **Responsive UI** with a clean glassmorphism aesthetic
+- 🔎 **Location-aware** recommendations based on proximity
 
-AI Symptom Checker using pre-defined inputs
+---
 
-Interactive Hospital Map with directions and distance
+## 📁 Project Structure
 
-Appointment Booking System connected to Supabase
+/
+├── home.html
+├── appointments.html
+├── maps.html
+├── triage.html
+├── about.html
+├── login.html
+├── dashboard.html
+├── assets/
+│ ├── icon.png
+│ ├── liquid-cheese.png
+│ └── mygeodata/kenya_hospitals_per_county.geojson
+├── styles/
+│ ├── appointments.css
+│ ├── maps.css
+│ └── shared.css
+└── README.md
 
-Clean, responsive UI with glassmorphism and Google Fonts
+## 💻 Technologies Used
 
-Developer Dashboard Icon personalized with user's initials
+| Stack | Description |
+|-------|-------------|
+| **HTML5** | Frontend markup |
+| **CSS3** | Layout and styling (Glassmorphism) |
+| **JavaScript (Vanilla)** | Dynamic behavior & Supabase integration |
+| **Supabase** | Auth & Database for appointments |
+| **Google Maps API** | Hospital locator with directions |
+| **GeoJSON** | Hospital data by county |
+| **Font** | [Google Fonts – Quicksand](https://fonts.google.com/specimen/Quicksand) |
 
-💡 About the Developer
-Evans Makau
-Aspiring Software Developer & Data Scientist
-Passionate about solving real-world health access problems with code.
+---
 
-📦 Tech Stack
-Frontend: HTML5, CSS3, JavaScript (Vanilla)
+## 👨‍💻 Developer Profile
 
-Database & Auth: Supabase
+**Evans Makau**  
+🎓 *Student, Aspiring Software Developer & Data Scientist*  
+💡 Passionate about using code to improve healthcare access and experience in Kenya.
 
-Maps API: Google Maps JavaScript API
+---
 
-Design: Glassmorphism, Google Fonts (Quicksand)
+## ⚙️ Setup & Deployment
 
-🔧 How to Run
-Clone or download the repository
+### Prerequisites
+- Internet connection (for Supabase and Google Maps API)
+- Browser (latest Chrome, Firefox, etc.)
+- Optional: VS Code or any code editor
 
-Open home.html in a browser
+### Running the Project
 
-Ensure you have internet access for Supabase & Google Maps APIs
+1. Clone this repository or download ZIP  
+2. Open `home.html` in your browser  
+3. Ensure the following resources are correctly linked:
+   - Google Maps API Key in `maps.html`
+   - Supabase credentials in `appointments.html`
 
-(Optional) Edit your Supabase keys in appointments.html or triage logic
+---
 
+## 📌 Notes
+
+- 🗂️ You can find hospital location data in `mygeodata/kenya_hospitals_per_county.geojson`
+- 🧠 Triage system uses basic prompt buttons simulating AI guidance
+- 📍 Hospital branches are dynamically pulled into appointments
+- 🔒 Auth is required to access `appointments.html` and `dashboard.html`
+
+---
+
+## 🔖 Tags
+
+`#html` `#css` `#javascript` `#healthtech` `#supabase` `#google-maps` `#student-project` `#glassmorphism` `#kenya` `#geojson` `#triage` `#appointments` `#location-aware`
+
+---
+
+## 📜 License
+
+This project was developed for educational purposes and is free to use, modify, and learn from.
+
+---
