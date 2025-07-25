@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MedicAI - Home</title>
+  <link rel="stylesheet" href="home.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600&display=swap" rel="stylesheet" />
+  <script>
+  let index = 0;
+  window.addEventListener('load', () => {
+    const cards = document.querySelectorAll('.feature-card');
+
+    setInterval(() => {
+      if (!cards.length) return;
+
+      index = (index + 1) % cards.length;
+      const offsetTop = cards[index].offsetTop - 120; // subtract navbar height
+
+      window.scrollTo({
+        top: offsetTop,
+        behavior: 'smooth'
+      });
+    }, 3000);
+  });
+</script>
+
+</head>
+<body>
+  <div class="home">
+    <div class="navbar">
+      <img src="icon.png" alt="MedicAI" class="icon" />
+      <ul>
+        <li><a href="home.html">HOME</a></li>
+        <li><a href="triage.html">TRIAGE</a></li>
+        <li><a href="maps.html">LOCATIONS</a></li>
+        <li><a href="about.html">ABOUT</a></li>
+      </ul>
+      <a href="login.html"><button class="logbut">Login</button></a>
+    </div>
+
+    <div class="feature-scroll">
+      <section class="feature-card">
+        <img src="triage.jpg" alt="Triage" />
+        <h1>Symptom Checker</h1>
+        <p>Instant AI triage with accurate results in seconds.</p>
+        <button class="card-btn" type="button"><span></span><a href="triage.html">Register</a></button>
+      </section>
+
+      <section class="feature-card">
+        <img src="location.webp" alt="Hospitals" />
+        <h1>Find Hospitals Nearby</h1>
+        <p>Browse verified clinics and emergency locations near you.</p>
+        <button class="card-btn" type="button"><span></span><a href="location.html">Register</a></button>
+      </section>
+
+      <section class="feature-card">
+        <img src="appointment.webp" alt="Appointments" />
+        <h1>Book Appointments</h1>
+        <p>Schedule a visit with a certified medical professional.</p>
+        <button class="card-btn" type="button"><span></span><a href="appointments.html">Register</a></button>
+      </section>
+    </div>
+  </div>
+
+  <footer style="text-align:center; margin-top: 40px;">
+    2025© MediConnect AI
+  </footer>
+</body>
+</html>
