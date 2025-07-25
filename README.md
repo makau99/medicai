@@ -53,7 +53,7 @@ A responsive, student-built web application for booking hospital appointments, t
 
 **Evans Makau**  
 🎓 *Student, Aspiring Software Developer & Data Scientist*  
-💡 Passionate about using code to improve healthcare access and experience in Kenya.
+💡 Passionate about using code to solve real life problems. Based in Kenya.
 
 ---
 
