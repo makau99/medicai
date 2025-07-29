@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>MedicAI - Symptom Triage</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="triage.css" />
+</head>
+<body>
+  <nav class="navbar">
+    <div class="brand">
+        <a href="home.html">
+          <img src="icon.png" class="icon" />
+          <span class="name">MedicAI</span>
+        </a>
+    </div>
+    <ul>
+        <li><a href="appointments.html">APPOINTMENTS</a></li>
+        <li><a href="triage.html">TRIAGE</a></li>
+        <li><a href="maps.html">LOCATIONS</a></li>
+        <li><a href="dashboard.html">DASHBOARD</a></li>
+        <li><a href="about.html">ABOUT</a></li>
+    </ul>
+    <button class="logbut">Login</button>
+  </nav>
+
+  <div class="map-card">
+    <h2 id="header">Start Triage</h2>
+    <div id="input-box"></div>
+    <div id="suggestions"></div>
+    <div id="question-box"></div>
+    <div id="summary-box"></div>
+  </div>
+
+  <script src="triage.js"></script>
+</body>
+</html>

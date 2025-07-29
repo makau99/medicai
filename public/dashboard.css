@@ -1,0 +1,132 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Quicksand', sans-serif;
+}
+
+body {
+  background-image: url('images/liquid-cheese.png');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+}
+
+.navbar {
+  height: 70px;
+  width: 100%;
+  padding: 20px 5%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 999;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+
+.navbar ul {
+  display: flex;
+  gap: 40px;
+  list-style: none;
+}
+
+.navbar ul li a {
+  text-decoration: none;
+  color: #572717;
+  font-size: 18px;
+  text-transform: uppercase;
+}
+
+.navbar ul li a:active,
+.navbar ul li a:hover {
+  color: rgb(100, 100, 214);
+}
+
+/* ✅ Main content */
+.content {
+  padding-top: 120px;
+  max-width: 1100px;
+  margin: auto;
+  color: #572717;
+}
+
+.section-title {
+  text-align: center;
+  margin-bottom: 40px;
+  font-size: 36px;
+}
+
+/* ✅ Sections */
+.card-section {
+  margin-bottom: 60px;
+}
+
+.card-section h2 {
+  font-size: 28px;
+  margin-bottom: 20px;
+  color: #572717;
+}
+
+/* ✅ Card Layout */
+.card-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  justify-content: center;
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 20px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 20px 30px;
+  width: 300px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease;
+}
+
+.glass-card:hover {
+  transform: scale(1.03);
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.glass-card h3 {
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+.glass-card p {
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+}
+
+.brand a {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  gap: 10px;
+}
+
+.icon {
+  width: 50px;
+  height: auto;
+}
+
+.name {
+  font-size: 22px;
+  font-weight: bold;
+  color: #572717;
+  text-transform: none;
+}
