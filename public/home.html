@@ -31,46 +31,85 @@
     <div class="navbar">
       <div class="brand">
         <a href="home.html">
-          <img src="icon.png" class="icon"/>
+          <img src="../images/icon.png" class="icon">
           <span class="name">MedicAI</span>
         </a>
       </div>
-      <ul>
-        <li><a href="appointments.html">APPOINTMENTS</a></li>
-        <li><a href="triage.html">TRIAGE</a></li>
-        <li><a href="maps.html">LOCATIONS</a></li>
-        <li><a href="dashboard.html">DASHBOARD</a></li>
-        <li><a href="about.html">ABOUT</a></li>
-      </ul>
-      <a href="login.html"><button class="logbut">Login</button></a>
+
+      <!-- Hamburger button (visible on mobile) -->
+      <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+
+      <div class="nav-wrapper">
+        <ul class="nav-links">
+          <li><a href="triage.html">TRIAGE</a></li>
+          <li><a href="maps.html">LOCATIONS</a></li>
+          <li><a href="appointments.html" >APPOINTMENTS</a></li>
+          <li><a href="dashboard.html">DASHBOARD</a></li>
+          <li><a href="about.html">ABOUT</a></li>
+        </ul>
+        <button class="logBtn" id="logBtn">Login</button>
+      </div>
     </div>
+      <div class="feature-scroll">
+        <section class="feature-card">
+          <img src="images/triage.jpg" alt="Triage" />
+          <h1>Symptom Checker</h1>
+          <p>Instant AI triage with accurate results in seconds.</p>
+          <a class="logbut" type="button" href="triage.html">Start</a>
+        </section>
 
-    <div class="feature-scroll">
-      <section class="feature-card">
-        <img src="images/triage.jpg" alt="Triage" />
-        <h1>Symptom Checker</h1>
-        <p>Instant AI triage with accurate results in seconds.</p>
-        <a class="logbut" type="button" href="triage.html">View</a>
-      </section>
+        <section class="feature-card">
+          <img src="images/location.webp" alt="Hospitals" />
+          <h1>Find Hospitals Nearby</h1>
+          <p>Browse verified clinics and emergency locations near you.</p>
+          <a class="logbut" type="button" href="maps.html">Explore</a>
+        </section>
 
-      <section class="feature-card">
-        <img src="images/location.webp" alt="Hospitals" />
-        <h1>Find Hospitals Nearby</h1>
-        <p>Browse verified clinics and emergency locations near you.</p>
-        <a class="logbut" type="button" href="maps.html">View</a>
-      </section>
-
-      <section class="feature-card">
-        <img src="images/appointment.webp" alt="Appointments" />
-        <h1>Book Appointments</h1>
-        <p>Schedule a visit with a certified medical professional.</p>
-        <a button class="logbut" type="button"href="appointments.html">View</a>
-      </section>
-    </div>
+        <section class="feature-card">
+          <img src="images/appointment.webp" alt="Appointments" />
+          <h1>Book Appointments</h1>
+          <p>Schedule a visit with a certified medical professional.</p>
+          <a class="logbut" type="button" href="appointments.html">Book Now</a>
+        </section>
+      </div>
   </div>
 
   <footer style="text-align:center; margin-top: 40px;">
     2025© MedicAI
   </footer>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script>
+    // Initialize Supabase client
+    const supabase = window.supabase.createClient(
+      'https://zzwdnekgsdyxdzyhuafk.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6d2RuZWtnc2R5eGR6eWh1YWZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI1ODM4MjcsImV4cCI6MjA2ODE1OTgyN30.Bw3UgVe_RjvX_HfxEn1HrPkzJ6N4KpIFahKe0lxMSmg'
+    );
+
+    // Update login/logout button
+    const logBtn = document.getElementById('logBtn');
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        logBtn.textContent = 'Log Out';
+        logBtn.onclick = async () => {
+          await supabase.auth.signOut();
+          localStorage.removeItem('user');
+          location.reload();
+        };
+      } else {
+        logBtn.textContent = 'Login';
+        logBtn.onclick = () => {
+          window.location.href = 'login.html';
+        };
+      }
+    });
+  </script>
+
+  <script>
+    function toggleMenu() {
+      const wrapper = document.querySelector('.nav-wrapper');
+      wrapper.classList.toggle('show');
+    }
+  </script>
 </body>
 </html>

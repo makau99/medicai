@@ -17,7 +17,7 @@ const apiHeaders = {
   'Dev-Mode': 'true'
 };
 
-app.get('/', (req, res) => res.send('Infermedica v3 Proxy Running ✅'));
+app.get('/', (req, res) => res.sendFile(__dirname + '/public/home.html'));
 
 app.post('/api/diagnosis', async (req, res) => {
   try {

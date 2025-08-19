@@ -30,7 +30,8 @@ body {
 }
 
 .icon {
-  width: 150px;
+  width: 50px;
+  height: auto;
 }
 
 .navbar ul {
@@ -46,11 +47,27 @@ body {
   text-transform: uppercase;
 }
 
-.navbar ul li a.active,
+.navbar ul li a.active{
+  color: rgb(100, 100, 214);
+}
 .navbar ul li a:hover {
   color: rgb(100, 100, 214);
 }
-
+button, select {
+  padding: 8px 15px;
+  margin: 5px;
+  border-radius: 25px;
+  font-size: 15px;
+  border: 1px solid #572717;
+  background-color: transparent;
+  color:#572717;
+  cursor: pointer;
+  transition: 0.3s;
+}
+button:hover, select:hover {
+  background-color: #572717;
+  color: white;
+}
 .logbut {
   background-color: transparent;
   height: 50px;
@@ -70,6 +87,31 @@ body {
   color: white;
 }
 
+#logBtn {
+  background-color: transparent;
+  height: 50px;
+  border-radius: 20px;
+  width: 120px;
+  cursor: pointer;
+  font-size: 15px;
+  border: 1px solid #572717;
+  color: #572717;
+  transition: 0.3s;
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  text-align: center;
+}
+#logBtn:hover {
+  background-color: #572717;
+  color: white;
+}
+
+#logBtn a {
+  text-decoration: none;
+  color: inherit;
+  margin-bottom: 40px;
+}
 
 .feature-scroll {
   scroll-snap-type: y mandatory;
@@ -124,6 +166,13 @@ body {
   max-width: 600px;
   margin-bottom: 2rem;
 }
+.feature-scroll {
+  margin-top: 110px;
+}
+
+html {
+  scroll-padding-top: 110px;
+}
 
 .card-btn {
   padding: 0.8rem 2rem;
@@ -151,7 +200,6 @@ body {
   text-decoration: none;
   gap: 10px;
 }
-
 .icon {
   width: 50px;
   height: auto;
@@ -163,3 +211,88 @@ body {
   color: #572717;
   text-transform: none;
 }
+/* TOGGLE BUTTON (Mobile only) */
+.menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #572717;
+  cursor: pointer;
+  z-index: 1001;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .menu-toggle {
+    display: block;
+  }
+
+  .nav-wrapper {
+    position: absolute;
+    display: none;
+    top: 70px;
+    right: 5%;
+    width: 90%;
+    flex-direction: column;
+    align-items: flex-start;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 1rem;
+    border-radius: 12px;
+    z-index: 1000;
+    border: 1px solid #572717;
+  }
+
+  .nav-wrapper.show {
+    display: flex;
+  }
+
+  .nav-links {
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+  }
+  .nav-links li a {
+    display: block;
+    padding: 0.5rem 0;
+    width: 100%;
+  }
+
+  #logBtn {
+    width: 100%;
+    position: relative;
+    left: 0;
+  }
+  #logBtn:hover, select:hover{
+    background-color: #572717;
+    transition: color 0.3s ease;
+  }
+  @media (max-width: 768px) {
+  .navbar {
+    padding: 0 1rem;
+  }
+
+  .brand .name {
+    font-size: 18px;
+  }
+
+  .menu-toggle {
+    font-size: 24px;
+  }
+}
+
+}
+
+/* Desktop-only nav stays visible */
+@media (min-width: 769px) {
+  .nav-wrapper {
+    display: flex !important;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .nav-links {
+    flex-direction: row;
+  }
+}
+

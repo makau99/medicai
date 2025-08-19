@@ -25,14 +25,15 @@ body {
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 999;
+  z-index: 1000;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
 
 .icon {
-  width: 150px;
+  width: 50px;
+  height: auto;
 }
 
 .navbar ul {
@@ -46,15 +47,18 @@ body {
   color: #572717;
   font-size: 18px;
   text-transform: uppercase;
+  transition: color 0.3s;
 }
 
-.navbar ul li a.active,
+.navbar ul li a.active{
+  color: rgb(100, 100, 214);
+}
 .navbar ul li a:hover {
   color: rgb(100, 100, 214);
 }
 
 
-.logbut {
+#logbut {
   background-color: transparent;
   height: 50px;
   border-radius: 20px;
@@ -66,14 +70,14 @@ body {
   transition: 0.3s;
 }
 
-.logbut:hover {
+#logbut:hover {
   background-color: #572717;
   color: white;
 }
 
 .map-card {
-  width: 90%;
-  height: 80vh;
+  width: 96%;
+  height: auto;
   max-width: 1000px;
   margin: 100px auto 40px;
   background: rgba(255, 255, 255, 0.25);
@@ -87,12 +91,13 @@ body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  gap: 1 rem;
 }
 
 .map-card select,
 .map-card input[type="text"],
 .map-card input[type="number"] {
-  width: 80%;
+  width: 100%;
   height: 50px;
   margin: 15px 0;
   padding: 0 15px;
@@ -111,7 +116,21 @@ body {
   font-size: 24px;
   color: #000;
 }
-
+button, select {
+  padding: 8px 15px;
+  margin: 5px;
+  border-radius: 25px;
+  font-size: 15px;
+  border: 1px solid #572717;
+  background-color: transparent;
+  color:#572717;
+  cursor: pointer;
+  transition: 0.3s;
+}
+button:hover, select:hover {
+  background-color: #572717;
+  color: white;
+}
 .map-card input::placeholder {
   color: #999;
 }
@@ -141,6 +160,7 @@ body {
   text-align: center;
   transition: background-color 0.3s ease, transform 0.2s ease;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  white-space: normal;
 }
 
 .option-buttons button:hover {
@@ -157,11 +177,6 @@ body {
   align-items: center;
   text-decoration: none;
   gap: 10px;
-}
-
-.icon {
-  width: 50px;
-  height: auto;
 }
 
 .name {
@@ -186,3 +201,91 @@ footer {
   box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
   font-size: 14px;
 }
+#summary-box {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.summary-card {
+  background: #ffffffcc;
+  border-left: 6px solid #2a9d8f;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  font-family: 'Quicksand', sans-serif;
+  font-size: 1rem;
+  color: #333;
+}
+/* TOGGLE BUTTON (Mobile only) */
+.menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #572717;
+  cursor: pointer;
+  z-index: 1001;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .menu-toggle {
+    display: block;
+  }
+
+  .nav-wrapper {
+    position: absolute;
+    display: none;
+    top: 70px;
+    right: 5%;
+    width: 90%;
+    flex-direction: column;
+    align-items: flex-start;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 1rem;
+    border-radius: 12px;
+    z-index: 1000;
+    border: 1px solid #572717;
+  }
+
+  .nav-wrapper.show {
+    display: flex;
+  }
+
+  .nav-links {
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+  }
+
+  .nav-links li a {
+    display: block;
+    padding: 0.5rem 0;
+    margin-bottom: 5px;
+    width: 100%;
+  }
+
+  #logbut {
+    width: 100%;
+    margin-top: 10px;
+    position: relative;
+    left: 0;
+    text-align: center;
+  }
+}
+
+/* Desktop-only nav stays visible */
+@media (min-width: 769px) {
+  .nav-wrapper {
+    display: flex !important;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .nav-links {
+    flex-direction: row;
+  }
+}
+

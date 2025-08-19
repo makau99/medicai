@@ -18,7 +18,7 @@ function askInitialDetails() {
     <label>Main symptom: <input type="text" id="symptomId" placeholder="Start typing..." oninput="suggestSymptoms(this.value)" /></label>
     <div id="suggestions"></div>
     <br />
-    <button class = "logbut"onclick="startTriage()">Start Triage</button>
+    <button id = "logbut"onclick="startTriage()">Start Triage</button>
   `;
 }
 
@@ -26,10 +26,10 @@ async function suggestSymptoms(query) {
   const container = document.getElementById('suggestions');
   if (query.length < 2) return container.innerHTML = '';
 
-  const sex = document.getElementById('sex').value || 'male';
+  const selectedSex = document.getElementById('sex').value || 'male';
   const age = document.getElementById('age').value || 30;
 
-  const response = await fetch(`/api/search-symptoms?q=${encodeURIComponent(query)}&sex=${sex}&age=${age}`);
+  const response = await fetch(`/api/search-symptoms?q=${encodeURIComponent(query)}&sex=${selectedSex}&age=${age}`);
   const data = await response.json();
 
   if (!Array.isArray(data)) {
@@ -81,18 +81,22 @@ async function showQuestion(data) {
   }
 
   if (!data.question) {
-    summary.innerHTML += `<h3>Summary</h3><pre>${JSON.stringify(data.conditions, null, 2)}</pre>`;
+    if (data.conditions && data.conditions.length > 0) {
+      displaySummary(data.conditions);
+    } else {
+      summary.innerHTML += `<p>No condition could be identified based on the given symptoms.</p>`;
+    }
     return;
   }
 
-  // Add the question
-  box.innerHTML = `<p>${data.question.text}</p>`;
+  // Render the current question
+  const questionText = document.createElement('p');
+  questionText.textContent = data.question.text;
+  box.appendChild(questionText);
 
-  // Create container for buttons
   const buttonContainer = document.createElement('div');
   buttonContainer.className = 'option-buttons';
 
-  // Add buttons to the container
   data.question.items.forEach(item => {
     item.choices.forEach(choice => {
       const btn = document.createElement('button');
@@ -102,9 +106,29 @@ async function showQuestion(data) {
     });
   });
 
-  // Append container to question box
   box.appendChild(buttonContainer);
 }
+function displaySummary(conditions) {
+  const container = document.getElementById('summary-box');
+  container.innerHTML += `<h3>Summary:</h3>`;
+
+  conditions.forEach(result => {
+    const card = document.createElement('div');
+    card.className = 'summary-card';
+
+    const condition = document.createElement('p');
+    condition.innerHTML = `<strong>Condition:</strong> ${result.common_name || result.name}`;
+
+    const probability = document.createElement('p');
+    probability.innerHTML = `<strong>Probability:</strong> ${(result.probability * 100).toFixed(1)}%`;
+
+    card.appendChild(condition);
+    card.appendChild(probability);
+    container.appendChild(card);
+  });
+}
+
+
 
 async function answerQuestion(symptomId, choiceId) {
   evidence.push({ id: symptomId, choice_id: choiceId });

@@ -44,16 +44,17 @@ body {
   text-transform: uppercase;
 }
 
-.navbar ul li a.active,
+.navbar ul li a.active{
+  color: rgb(100, 100, 214);
+}
 .navbar ul li a:hover {
   color: rgb(100, 100, 214);
 }
-
-.logbut {
+#logbut {
   background-color: transparent;
-  height: 40px;
+  height: 50px;
   border-radius: 20px;
-  width: 100px;
+  width: 120px;
   cursor: pointer;
   font-size: 15px;
   border: 1px solid #572717;
@@ -61,7 +62,7 @@ body {
   transition: 0.3s;
 }
 
-.logbut:hover {
+#logbut:hover {
   background-color: #572717;
   color: white;
 }
@@ -89,26 +90,44 @@ body {
   text-align: center;
 }
 
+#logbut {
+  background-color: transparent;
+  height: 50px;
+  border-radius: 20px;
+  width: 120px;
+  cursor: pointer;
+  font-size: 15px;
+  border: 1px solid #572717;
+  color: #572717;
+  transition: 0.3s;
+}
+
+#logbut:hover {
+  background-color: #572717;
+  color: white;
+}
+
 button, select {
   padding: 8px 15px;
   margin: 5px;
   border-radius: 25px;
   font-size: 15px;
-  border: none;
-  background-color: #005f73;
-  color: white;
+  border: 1px solid #572717;
+  background-color: transparent;
+  color:#572717;
   cursor: pointer;
-  transition: background 0.3s ease;
+  transition: 0.3s;
 }
 
 button:hover, select:hover {
-  background-color: #0a9396;
+  background-color: #572717;
+  color: white;
 }
 
 select {
-  background-color: rgba(255, 255, 255, 0.7);
-  color: #003845;
-  border: 1px solid #005f73;
+  background-color:transparent;
+  color: #572717;
+  border: 1px solid #572717;
   padding: 10px 14px;
   font-size: 16px;
   border-radius: 12px;
@@ -121,7 +140,7 @@ select {
 }
 
 select:focus {
-  border-color: #0a9396;
+  border-color: #572717;
   box-shadow: 0 0 0 3px rgba(10, 147, 150, 0.2);
   outline: none;
 }
@@ -160,4 +179,73 @@ footer {
   font-weight: bold;
   color: #572717;
   text-transform: none;
+}
+/* TOGGLE BUTTON (Mobile only) */
+.menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #572717;
+  cursor: pointer;
+  z-index: 1001;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .menu-toggle {
+    display: block;
+  }
+
+  .nav-wrapper {
+    position: absolute;
+    display: none;
+    top: 70px;
+    right: 5%;
+    width: 90%;
+    flex-direction: column;
+    align-items: flex-start;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 1rem;
+    border-radius: 12px;
+    z-index: 1000;
+    border: 1px solid #572717;
+  }
+
+  .nav-wrapper.show {
+    display: flex;
+  }
+
+  .nav-links {
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+  }
+
+  .nav-links li a {
+    display: block;
+    padding: 0.5rem 0;
+    width: 100%;
+  }
+
+  #logbut {
+    width: 100%;
+    margin-top: 10px;
+    position: relative;
+    left: 0;
+    text-align: center;
+  }
+}
+
+/* Desktop-only nav stays visible */
+@media (min-width: 769px) {
+  .nav-wrapper {
+    display: flex !important;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .nav-links {
+    flex-direction: row;
+  }
 }

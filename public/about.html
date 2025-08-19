@@ -8,21 +8,28 @@
   <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600&display=swap" rel="stylesheet" />
 </head>
 <body>
-  <div class="navbar">
-    <div class="brand">
+<div class="dashboard">
+    <div class="navbar">
+      <div class="brand">
         <a href="home.html">
-          <img src="icon.png" class="icon" />
+          <img src="../images/icon.png" class="icon" />
           <span class="name">MedicAI</span>
         </a>
-    </div>
-    <ul>
-        <li><a href="appointments.html">APPOINTMENTS</a></li>
+      </div>
+
+      <!-- Hamburger button (visible on mobile) -->
+      <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+
+      <div class="nav-wrapper">
+      <ul class="nav-links">
         <li><a href="triage.html">TRIAGE</a></li>
         <li><a href="maps.html">LOCATIONS</a></li>
+        <li><a href="appointments.html" >APPOINTMENTS</a></li>
         <li><a href="dashboard.html">DASHBOARD</a></li>
-        <li><a href="about.html">ABOUT</a></li>
-    </ul>
-    <a href="login.html"><button class="logbut">Login</button></a>
+        <li><a href="about.html" class="active">ABOUT</a></li>
+      </ul>
+      <button id="logbut">Login</button>
+      </div>
   </div>
 
   <section class="about-section">
@@ -31,7 +38,8 @@
       <p>
         MedicAI is a school project built to demonstrate how technology can improve
         access to healthcare information. The system allows users to triage symptoms,
-        locate nearby hospitals, and book appointments.
+        locate nearby hospitals, and book appointments. Special thanks to Inframedica
+        for providing the API that powers the symptom checker.
       </p>
 
       <h2>About the Developer</h2>
@@ -42,5 +50,39 @@
       </p>
     </div>
   </section>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const supabase = window.supabase.createClient(
+      'https://zzwdnekgsdyxdzyhuafk.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6d2RuZWtnc2R5eGR6eWh1YWZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI1ODM4MjcsImV4cCI6MjA2ODE1OTgyN30.Bw3UgVe_RjvX_HfxEn1HrPkzJ6N4KpIFahKe0lxMSmg'
+    );
+
+    async function updateAuthButton() {
+      const { data: { session } } = await supabase.auth.getSession();
+      const authBtn = document.getElementById('logbut');
+
+      if (session && session.user) {
+        authBtn.textContent = 'Log Out';
+        authBtn.onclick = async () => {
+          await supabase.auth.signOut();
+          localStorage.removeItem('user');
+          location.reload();
+        };
+      } else {
+        authBtn.textContent = 'Login';
+        authBtn.onclick = () => {
+          window.location.href = 'login.html';
+        };
+      }
+    }
+
+    updateAuthButton();
+  </script>
+  <script>
+    function toggleMenu() {
+      const wrapper = document.querySelector('.nav-wrapper');
+      wrapper.classList.toggle('show');
+    }
+  </script>
 </body>
 </html>

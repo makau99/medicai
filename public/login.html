@@ -9,29 +9,38 @@
   <link href="https://fonts.googleapis.com/css2?family=Italianno&family=M+PLUS+Rounded+1c:wght@700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class="loginpg">
+  <div class="dashboard">
     <div class="navbar">
-      <img src="icon.png" alt="MedicAI" class="icon" />
-      <ul>        
-        <li><a href="appointments.html">APPOINTMENTS</a></li>
-        <li><a href="triage.html">TRIAGE</a></li>
-        <li><a href="maps.html">LOCATIONS</a></li>
-        <li><a href="dashboard.html">DASHBOARD</a></li>
-        <li><a href="about.html">ABOUT</a></li>
-      </ul>
-    </div>
-
-    <div class="form">
-      <h1>Login</h1>
-      <input type="email" id="user" placeholder="Email address" required /><br>
-      <input type="password" id="pass" placeholder="Password" required />
-      <div class="forgot"><a href="#">Forgot Password</a></div>
-      <div class="btn">
-        <button id="loginBtn" type="button"><span></span>Login</button>
-        <button id="regpage" type="button"><span></span><a href="register.html">Register</a></button>
+      <div class="brand">
+        <a href="home.html" class="brand-link">
+          <img src="../images/icon.png" class="icon" />
+        </a>
       </div>
+
+      <!-- Hamburger button (visible on mobile) -->
+      <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+
+      <div class="nav-wrapper">
+        <ul class="nav-links">
+          <li><a href="triage.html">TRIAGE</a></li>
+          <li><a href="maps.html">LOCATIONS</a></li>
+          <li><a href="appointments.html" >APPOINTMENTS</a></li>
+          <li><a href="dashboard.html" >DASHBOARD</a></li>
+          <li><a href="about.html">ABOUT</a></li>
+        </ul>
+      </div>
+  </div>
+  <div class="form">
+    <h1>Login</h1>
+    <input type="email" id="user" placeholder="Email address" required /><br>
+    <input type="password" id="pass" placeholder="Password" required />
+    <div class="forgot"><a href="#">Forgot Password</a></div>
+    <div class="btn">
+      <button id="loginBtn" type="button"><span></span>Login</button>
+      <button id="regBtn" type="button"><span></span><a href="register.html">Register</a></button>
     </div>
   </div>
+</div>
 
   <!-- Supabase Client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -44,34 +53,49 @@
 
   <!-- Login Logic -->
   <script>
-  document.getElementById('loginBtn').addEventListener('click', async function () {
-    const email = document.getElementById('user').value.trim();
-    const password = document.getElementById('pass').value.trim();
+    document.getElementById("login-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
 
-    // Step 1: Sign in
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
 
-    if (error) {
-      alert("Login failed: " + error.message);
-      return;
+      // 1. Log in
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+      if (error) {
+        alert("Login failed: " + error.message);
+        return;
+      }
+
+      // 2. Get profile info (including role)
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("id, email, role")
+        .eq("id", data.user.id)
+        .single();
+
+      if (profileError) {
+        alert("Error fetching profile: " + profileError.message);
+        return;
+      }
+
+      // 3. Save profile in localStorage
+      localStorage.setItem("user", JSON.stringify(profile));
+
+      // 4. Redirect based on role
+      if (profile.role === "admin") {
+        window.location.href = "admin.html";
+      } else {
+        window.location.href = "dashboard.html";
+      }
+    });
+  </script>
+
+  <script>
+    function toggleMenu() {
+      const wrapper = document.querySelector('.nav-wrapper');
+      wrapper.classList.toggle('show');
     }
-
-    // Step 2: Fetch profile from 'profiles' table
-    const { data: profile, error: profileErr } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', data.user.id)
-      .single();
-
-    if (profileErr || !profile) {
-      alert("Profile not found. You might need to re-register.");
-      return;
-    }
-
-    // Step 3: Save and redirect
-    localStorage.setItem('user', JSON.stringify(profile));
-    window.location.href = 'dashboard.html';
-  });
   </script>
 
 </body>
