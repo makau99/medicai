@@ -1,4 +1,4 @@
-# 🏥 MediConnect AI – Hospital Appointment & Triage Web App
+# 🏥 MedicAI – Hospital Appointment & Triage Web App
 
 A responsive, student-built web application for booking hospital appointments, triaging symptoms, and locating nearby hospitals in Kenya. This system simplifies hospital access through an intuitive interface and integrated location intelligence.
 
