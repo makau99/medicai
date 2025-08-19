@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MedicAI - Home</title>
+  <link rel="stylesheet" href="home.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600&display=swap" rel="stylesheet" />
+  <script>
+  let index = 0;
+  window.addEventListener('load', () => {
+    const cards = document.querySelectorAll('.feature-card');
+
+    setInterval(() => {
+      if (!cards.length) return;
+
+      index = (index + 1) % cards.length;
+      const offsetTop = cards[index].offsetTop - 120; 
+
+      window.scrollTo({
+        top: offsetTop,
+        behavior: 'smooth'
+      });
+    }, 3000);
+  });
+</script>
+
+</head>
+<body>
+  <div class="home">
+    <div class="navbar">
+      <div class="brand">
+        <a href="index.html">
+          <img src="../images/icon.png" class="icon">
+          <span class="name">MedicAI</span>
+        </a>
+      </div>
+
+      <!-- Hamburger button (visible on mobile) -->
+      <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+
+      <div class="nav-wrapper">
+        <ul class="nav-links">
+          <li><a href="triage.html">TRIAGE</a></li>
+          <li><a href="maps.html">LOCATIONS</a></li>
+          <li><a href="appointments.html" >APPOINTMENTS</a></li>
+          <li><a href="dashboard.html">DASHBOARD</a></li>
+          <li><a href="about.html">ABOUT</a></li>
+        </ul>
+        <button class="logBtn" id="logBtn">Login</button>
+      </div>
+    </div>
+      <div class="feature-scroll">
+        <section class="feature-card">
+          <img src="images/triage.jpg" alt="Triage" />
+          <h1>Symptom Checker</h1>
+          <p>Instant AI triage with accurate results in seconds.</p>
+          <a class="logbut" type="button" href="triage.html">Start</a>
+        </section>
+
+        <section class="feature-card">
+          <img src="images/location.webp" alt="Hospitals" />
+          <h1>Find Hospitals Nearby</h1>
+          <p>Browse verified clinics and emergency locations near you.</p>
+          <a class="logbut" type="button" href="maps.html">Explore</a>
+        </section>
+
+        <section class="feature-card">
+          <img src="images/appointment.webp" alt="Appointments" />
+          <h1>Book Appointments</h1>
+          <p>Schedule a visit with a certified medical professional.</p>
+          <a class="logbut" type="button" href="appointments.html">Book Now</a>
+        </section>
+      </div>
+  </div>
+
+  <footer style="text-align:center; margin-top: 40px;">
+    2025© MedicAI
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script>
+    // Initialize Supabase client
+    const supabase = window.supabase.createClient(
+      'https://zzwdnekgsdyxdzyhuafk.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6d2RuZWtnc2R5eGR6eWh1YWZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI1ODM4MjcsImV4cCI6MjA2ODE1OTgyN30.Bw3UgVe_RjvX_HfxEn1HrPkzJ6N4KpIFahKe0lxMSmg'
+    );
+
+    // Update login/logout button
+    const logBtn = document.getElementById('logBtn');
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        logBtn.textContent = 'Log Out';
+        logBtn.onclick = async () => {
+          await supabase.auth.signOut();
+          localStorage.removeItem('user');
+          location.reload();
+        };
+      } else {
+        logBtn.textContent = 'Login';
+        logBtn.onclick = () => {
+          window.location.href = 'login.html';
+        };
+      }
+    });
+  </script>
+
+  <script>
+    function toggleMenu() {
+      const wrapper = document.querySelector('.nav-wrapper');
+      wrapper.classList.toggle('show');
+    }
+  </script>
+</body>
+</html>

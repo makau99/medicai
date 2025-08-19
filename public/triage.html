@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>MedicAI - Symptom Triage</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="triage.css" />
+</head>
+<body>
+  <div class="dashboard">
+    <div class="navbar">
+      <div class="brand">
+        <a href="index.html">
+          <img src="../images/icon.png" class="icon" />
+          <span class="name">MedicAI</span>
+        </a>
+      </div>
+
+      <!-- Hamburger button (visible on mobile) -->
+      <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+
+      <div class="nav-wrapper">
+      <ul class="nav-links">
+        <li><a href="triage.html" class="active">TRIAGE</a></li>
+        <li><a href="maps.html">LOCATIONS</a></li>
+        <li><a href="appointments.html" >APPOINTMENTS</a></li>
+        <li><a href="dashboard.html">DASHBOARD</a></li>
+        <li><a href="about.html">ABOUT</a></li>
+      </ul>
+      <button id="logbut">Login</button>
+      </div>
+  </div>
+  <div class="map-card">
+    <h2 id="header">Start Triage</h2>
+    <div id="input-box"></div>
+    <div id="suggestions"></div>
+    <div id="question-box"></div>
+    <div id="summary-box"></div>
+  </div>
+
+  <script src="triage.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const supabase = window.supabase.createClient(
+      'https://zzwdnekgsdyxdzyhuafk.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6d2RuZWtnc2R5eGR6eWh1YWZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI1ODM4MjcsImV4cCI6MjA2ODE1OTgyN30.Bw3UgVe_RjvX_HfxEn1HrPkzJ6N4KpIFahKe0lxMSmg'
+    );
+
+    async function updateAuthButton() {
+      const { data: { session } } = await supabase.auth.getSession();
+      const authBtn = document.getElementById('logbut');
+
+      if (session && session.user) {
+        authBtn.textContent = 'Log Out';
+        authBtn.onclick = async () => {
+          await supabase.auth.signOut();
+          localStorage.removeItem('user');
+          location.reload();
+        };
+      } else {
+        authBtn.textContent = 'Login';
+        authBtn.onclick = () => {
+          window.location.href = 'login.html';
+        };
+      }
+    }
+
+    updateAuthButton();
+  </script>
+  <script>
+    function toggleMenu() {
+      const wrapper = document.querySelector('.nav-wrapper');
+      wrapper.classList.toggle('show');
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,269 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Quicksand', sans-serif;
+}
+
+body {
+  background-image: url('images/liquid-cheese.png');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+}
+
+.navbar {
+  height: 70px;
+  width: 100%;
+  padding: 20px 5%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 999;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+.nav-links {
+  display: flex;
+  gap: 40px;
+  list-style: none;
+}
+.nav-links li a {
+  text-decoration: none;
+  color: #572717;
+  font-size: 18px;
+  text-transform: uppercase;
+  transition: color 0.3s;
+}
+
+.navbar ul li a.active {
+  color: rgb(100, 100, 214);
+}
+.navbar ul li a:hover {
+  color: rgb(100, 100, 214);
+}
+button, select {
+  padding: 8px 15px;
+  margin: 5px;
+  border-radius: 25px;
+  font-size: 15px;
+  border: 1px solid #572717;
+  background-color: transparent;
+  color:#572717;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+button:hover, select:hover {
+  background-color: #572717;
+  color: white;
+}
+
+/* ✅ Main content */
+.content {
+  padding-top: 120px;
+  max-width: 1100px;
+  margin: auto;
+  color: #572717;
+}
+
+.section-title {
+  text-align: center;
+  margin-bottom: 40px;
+  font-size: 36px;
+}
+
+/* ✅ Sections */
+.card-section {
+  margin-bottom: 60px;
+}
+
+.card-section h2 {
+  font-size: 28px;
+  margin-bottom: 20px;
+  color: #572717;
+}
+
+/* ✅ Card Layout */
+.card-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  justify-content: center;
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 20px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 20px 30px;
+  width: 300px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease;
+}
+
+.glass-card:hover {
+  transform: scale(1.03);
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.glass-card h3 {
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+.glass-card p {
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+}
+
+.brand a {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  gap: 10px;
+}
+.name {
+  font-size: 22px;
+  font-weight: bold;
+  color: #572717;
+  text-transform: none;
+}
+.icon {
+  width: 50px;
+  height: auto;
+}
+
+.name {
+  font-size: 22px;
+  font-weight: bold;
+  color: #572717;
+  text-transform: none;
+}
+.logbut{
+  background-color: transparent;
+  height: 50px;
+  border-radius: 20px;
+  width: 120px;
+  cursor: pointer;
+  font-size: 15px;
+  border: 1px solid #572717;
+  color: #572717;
+  transition: 0.3s;
+}
+#createBtn,
+#title,
+#date,
+#branch {
+  background-color: transparent;
+  height: 40px;
+  border-radius: 20px;
+  width: 120px;
+  cursor: pointer;
+  font-size: 15px;
+  border: 1px solid #572717;
+  color: #572717;
+  transition: 0.3s;
+  margin: 5px;
+}
+#logbut:hover,
+#createBtn:hover,
+.logbut:hover {
+  background-color: #572717;
+  color: white;
+}
+/* TOGGLE BUTTON (Mobile only) */
+.menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #572717;
+  cursor: pointer;
+  z-index: 1001;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .menu-toggle {
+    display: block;
+  }
+
+  .nav-wrapper {
+    position: absolute;
+    display: none;
+    top: 70px;
+    right: 5%;
+    width: 90%;
+    flex-direction: column;
+    align-items: flex-start;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 1rem;
+    border-radius: 12px;
+    z-index: 1000;
+    border: 1px solid #572717;
+  }
+
+  .nav-wrapper.show {
+    display: flex;
+  }
+
+  .nav-links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+  }
+
+  .nav-links li a {
+    display: block;
+    padding: 1rem 0;
+    width: 100%;
+  }
+
+  #logbut {
+    width: 100%;
+    margin-top: 10px;
+    position: relative;
+    left: 0;
+    text-align: center;
+  }
+  @media (max-width: 768px) {
+  .navbar {
+    padding: 0 1rem;
+  }
+
+  .brand .name {
+    font-size: 18px;
+  }
+
+  .menu-toggle {
+    font-size: 24px;
+  }
+}
+
+}
+
+/* Desktop-only nav stays visible */
+@media (min-width: 769px) {
+  .nav-wrapper {
+    display: flex !important;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .nav-links {
+    flex-direction: row;
+  }
+}
