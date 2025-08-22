@@ -17,13 +17,16 @@
       </a>
     </div>
     <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+
     <div class="nav-wrapper">
       <ul class="nav-links">
-        <li><a href="#users">Users</a></li>
-        <li><a href="#appointments">Appointments</a></li>
-        <li><a href="#analytics">Analytics</a></li>
-        <li><button id="logbut" onclick="logout()">Log Out</button></li>
+        <li><a href="triage.html">TRIAGE</a></li>
+        <li><a href="maps.html">LOCATIONS</a></li>
+        <li><a href="appointments.html">APPOINTMENTS</a></li>
+        <li><a href="admin.html" class="active">DASHBOARD</a></li>
+        <li><a href="about.html">ABOUT</a></li>
       </ul>
+      <button id="logbut" onclick="logout()">Log Out</button>
     </div>
   </div>
 
@@ -62,13 +65,12 @@
     </section>
   </div>
 
-  <!-- ✅ Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
     const supabase = window.supabase.createClient(
       'https://zzwdnekgsdyxdzyhuafk.supabase.co',
-      'YOUR_PUBLIC_ANON_KEY' // ⚠️ replace with your anon key
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6d2RuZWtnc2R5eGR6eWh1YWZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI1ODM4MjcsImV4cCI6MjA2ODE1OTgyN30.Bw3UgVe_RjvX_HfxEn1HrPkzJ6N4KpIFahKe0lxMSmg' 
     );
 
     // Toggle mobile menu
@@ -113,6 +115,7 @@
       if (error) { console.error(error); return; }
 
       let container = document.getElementById("userCards");
+      container.innerHTML = ""; // clear old
       users.forEach(u => {
         container.innerHTML += `
           <div class="glass-card">
@@ -130,16 +133,16 @@
     async function loadAppointments() {
       const { data: appts, error } = await supabase
         .from("appointments")
-        .select("id, date, doctor, status, profiles(name)");
+        .select("id, date, status, profiles(name)");
       if (error) { console.error(error); return; }
 
       let container = document.getElementById("apptCards");
+      container.innerHTML = ""; // clear old
       appts.forEach(a => {
         container.innerHTML += `
           <div class="glass-card">
             <h3>${a.profiles?.name || "Unknown User"}</h3>
             <p>Date: ${a.date}</p>
-            <p>Doctor: ${a.doctor}</p>
             <p>Status: ${a.status}</p>
           </div>
         `;
@@ -148,12 +151,20 @@
       updateChart();
     }
 
-    // ✅ Chart
+    // ✅ Chart fix
+    let analyticsChart = null; // global ref
+
     function updateChart() {
       const users = parseInt(document.getElementById("userCount").textContent);
       const appts = parseInt(document.getElementById("apptCount").textContent);
 
-      new Chart(document.getElementById("analyticsChart"), {
+      // destroy old chart if exists
+      if (analyticsChart) {
+        analyticsChart.destroy();
+      }
+
+      const ctx = document.getElementById("analyticsChart").getContext("2d");
+      analyticsChart = new Chart(ctx, {
         type: 'bar',
         data: {
           labels: ["Users", "Appointments"],
@@ -162,6 +173,15 @@
             data: [users, appts],
             backgroundColor: ['#572717','#a0522d']
           }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            y: { beginAtZero: true }
+          }
         }
       });
     }

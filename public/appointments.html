@@ -44,6 +44,7 @@
       <div class="glass-card" style="max-width: 400px; margin: auto;">
         <input id="title" type="text" placeholder="Appointment Title" class="input" />
         <input id="date" type="date" class="input" />
+        <input id="time" type="time" class="input" />
         <select id="branch" class="input">
           <option disabled selected>Select Hospital Branch</option>
         </select>
@@ -102,6 +103,7 @@
         card.innerHTML = `
           <h3>${app.title}</h3>
           <p><strong>Date:</strong> ${app.date}</p>
+          <p><strong>Time:</strong> ${app.time}</p>
           <p><strong>Branch:</strong> ${app.branch}</p>
           <p><strong>Status:</strong> ${app.status}</p>
         `;
@@ -117,16 +119,23 @@
         const title = document.getElementById('title').value.trim();
         const date = document.getElementById('date').value;
         const branch = document.getElementById('branch').value;
+        const time = document.getElementById('time').value;
 
-        if (!title || !date || !branch) {
+        if (!title || !date || !time || !branch) {
           alert("Please fill in all fields.");
           return;
         }
-
+        const selectedDateTime = new Date(`${date}T${time}`);
+        const now = new Date();
+        if (selectedDateTime < now) {
+          alert("You cannot book an appointment in the past.");
+          return;
+        }
         const { error } = await supabase.from('appointments').insert([{
           user_id: user.id,
           title,
           date,
+          time,
           branch,
           status: 'Pending'
         }]);
@@ -137,6 +146,7 @@
         }
 
         document.getElementById('title').value = '';
+        document.getElementById('time').value = '';
         document.getElementById('date').value = '';
         document.getElementById('branch').selectedIndex = 0;
         alert("Appointment booked!");
