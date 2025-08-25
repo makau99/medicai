@@ -75,43 +75,53 @@
 
       <!-- ✅ Admin Redirect Button (hidden by default) -->
       <div id="adminRedirect" style="text-align:center; margin:30px; display:none;">
-        <button onclick="window.location.href='admin.html'" class="logbut">Go to Admin Dashboard</button>
+        <button onclick="window.location.href='admin.html'" class="logbut">Admin Dashboard</button>
       </div>
     </div>
   </div>
 
   <!-- Supabase JS -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
+  <script type="module">
     const supabase = window.supabase.createClient(
       'https://zzwdnekgsdyxdzyhuafk.supabase.co',
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6d2RuZWtnc2R5eGR6eWh1YWZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI1ODM4MjcsImV4cCI6MjA2ODE1OTgyN30.Bw3UgVe_RjvX_HfxEn1HrPkzJ6N4KpIFahKe0lxMSmg'
     );
-
+  async function loadProfile() {
     // Get user from localStorage
     const user = JSON.parse(localStorage.getItem('user'));
 
     if (!user) {
       alert('No user found. Redirecting to login...');
       window.location.href = 'login.html';
-    } else {
+      return;
+    } 
+    const {data: profile, error} = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single();
+    if (error) {
+      console.error("Error fetching profile:", error.message);
+    }
       // Fill in profile info
-      document.getElementById('u-name').textContent = user.name || '';
+      document.getElementById('u-name').textContent = profile?.name || '';
       document.getElementById('u-email').textContent = user.email || '';
-      document.getElementById('u-age').textContent = user.age || '';
-      document.getElementById('u-gender').textContent = user.gender || '';
+      document.getElementById('u-age').textContent = profile?.age || '';
+      document.getElementById('u-gender').textContent = profile?.gender || '';
 
       // ✅ Show admin button if role = admin
       if (user.role === "admin") {
         document.getElementById("adminRedirect").style.display = "block";
       }
-    }
 
+    }
+    loadProfile();
     // Logout logic
     document.getElementById('logoutBtn').addEventListener('click', async () => {
       await supabase.auth.signOut();
       localStorage.removeItem('user');
-      window.location.href = 'login.html';
+      window.location.href = 'home.html';
     });
   </script>
   <script>
