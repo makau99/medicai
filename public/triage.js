@@ -1,3 +1,4 @@
+<script>
 const SUPABASE_FN_URL = "https://zzwdnekgsdyxdzyhuafk.supabase.co/functions/v1/triage";
 
 let evidence = [];
@@ -74,10 +75,10 @@ function showSuggestions(list) {
 
   list.forEach(item => {
     const div = document.createElement("div");
-    div.textContent = item.name || item.label;
+    div.textContent = `${item.name} (${item.id})`; // show both name & ID
     div.style.cursor = "pointer";
     div.onclick = () => {
-      document.getElementById("symptomInput").value = item.name || item.label;
+      document.getElementById("symptomInput").value = item.name;
       document.getElementById("symptomIdHidden").value = item.id;
       container.innerHTML = "";
     };
@@ -144,38 +145,24 @@ function renderDiagnosis(data) {
   }
 
   if (data.question) {
-    const p = document.createElement("p");
-    p.textContent = data.question.text;
-    qBox.appendChild(p);
+    const qTitle = document.createElement("h4");
+    qTitle.textContent = data.question.text;
+    qBox.appendChild(qTitle);
 
-    const btns = document.createElement("div");
-  (data.question.items || []).forEach(item => {
-    const itemLabel = document.createElement("p");
-    itemLabel.textContent = item.name || "Select an option:";
-    btns.appendChild(itemLabel);
-  
-    // Detect time-related questions
-    const isDuration = item.type === "duration" || item.question_type === "duration";
-  
-    if (isDuration && item.choices) {
-      // Show time-based options (if available)
-      item.choices.forEach(choice => {
-        const b = document.createElement("button");
-        b.textContent = choice.label; // Usually like "1 day", "1 week"
-        b.onclick = () => answerQuestion(item.id, choice.id);
-        btns.appendChild(b);
-      });
-    } else {
-      // Default: Yes/No/Don't know
+    (data.question.items || []).forEach(item => {
+      const itemWrapper = document.createElement("div");
+      itemWrapper.style.margin = "8px 0";
+
+      // If it's a duration-type question, display time-based choices
       (item.choices || []).forEach(choice => {
-        const b = document.createElement("button");
-        b.textContent = choice.label;
-        b.onclick = () => answerQuestion(item.id, choice.id);
-        btns.appendChild(b);
+        const btn = document.createElement("button");
+        btn.textContent = choice.label;
+        btn.onclick = () => answerQuestion(item.id, choice.id);
+        itemWrapper.appendChild(btn);
       });
-    }
-  });
-    qBox.appendChild(btns);
+
+      qBox.appendChild(itemWrapper);
+    });
   }
 }
 
@@ -207,3 +194,4 @@ function debounce(fn, delay = 300) {
 
 // --- Start ---
 document.addEventListener("DOMContentLoaded", initUI);
+</script>
