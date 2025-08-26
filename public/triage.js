@@ -29,11 +29,11 @@ function askInitialDetails() {
 
 async function callInfermedica(action, payload) {
   try {
-    const res = await fetch("https://zzwdnekgsdyxdzyhuafk.supabase.co/functions/v1/triage", {
+    const res = await fetch(SUPABASE_FN_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": "Bearer " + "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6d2RuZWtnc2R5eGR6eWh1YWZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI1ODM4MjcsImV4cCI6MjA2ODE1OTgyN30.Bw3UgVe_RjvX_HfxEn1HrPkzJ6N4KpIFahKe0lxMSmg"
+        "apikey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6d2RuZWtnc2R5eGR6eWh1YWZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI1ODM4MjcsImV4cCI6MjA2ODE1OTgyN30.Bw3UgVe_RjvX_HfxEn1HrPkzJ6N4KpIFahKe0lxMSmg" // Replace with your project's anon key from Supabase > Project Settings > API
       },
       body: JSON.stringify({ action, payload }),
     });
@@ -50,6 +50,7 @@ async function callInfermedica(action, payload) {
     throw err;
   }
 }
+
 
 async function suggestSymptoms(query) {
   const container = document.getElementById("suggestions");
