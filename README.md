@@ -6,8 +6,7 @@ MedicAI allows users to **triage symptoms**, **book appointments**, and **locate
 ---
 
 ## 📸 UI Preview  
-
-> *(Add screenshots/GIFs of your app here once available)*  
+ 
 
 - 🏠 **Home Page** – Glassmorphism landing page with blurred navbar  
 - 🔐 **Login/Signup** – Supabase authentication (secure access)  
@@ -62,6 +61,53 @@ MedicAI allows users to **triage symptoms**, **book appointments**, and **locate
 │
 └── README.md
 ```
+## 💻 Technologies Used  
+
+| Stack | Description |
+|-------|-------------|
+| **HTML5** | Frontend markup |
+| **CSS3** | Styling (glassmorphism, warm-tone palette, Quicksand font) |
+| **JavaScript (Vanilla)** | Dynamic behavior & API integration |
+| **Supabase** | Authentication & database for users/appointments |
+| **Google Maps API** | Interactive hospital locator with directions |
+| **GeoJSON** | Hospital dataset (per county) |
+| **Infermedica API v3** | AI-powered symptom triage workflow |
+
+---
+
+## 👨‍💻 Developer Profile  
+
+**Evans Makau**  
+🎓 *Student, Aspiring Software Developer & Data Scientist*  
+💡 Passionate about building digital solutions that improve healthcare access in Kenya.  
+
+---
+
+## ⚙️ Setup & Deployment  
+
+### 🔑 Prerequisites  
+
+- Active **Supabase project**  
+  - Auth enabled (Email/Password)  
+  - Database table for appointments (`appointments`)  
+- **Infermedica API credentials**:  
+  - `App-Id`  
+  - `App-Key`  
+  - `Interview-Id`  
+- **Google Maps API Key** with:  
+  - Maps JavaScript API  
+  - Geocoding API  
+- Browser (latest Chrome, Firefox, Edge)  
+- Optional: **VS Code** for editing  
+
+---
+
+### 🛠️ Running the Project  
+
+1. Clone this repository or download the ZIP:  
+   ```bash
+   git clone https://github.com/yourusername/MedicAI.git
+   cd MedicAI
 2. Open `home.html` in your browser  
 
 3. Configure credentials:  
@@ -108,7 +154,7 @@ MedicAI allows users to **triage symptoms**, **book appointments**, and **locate
 - [x] Appointment booking integration  
 - [x] Google Maps hospital locator  
 - [x] AI-powered triage workflow  
-- [ ] Add doctor/admin panel  
+- [x] Add doctor/admin panel  
 - [ ] Enable SMS/email reminders for appointments  
 - [ ] Deploy app on **Netlify / Vercel / GitHub Pages**  
 
