@@ -28,7 +28,7 @@ function askInitialDetails() {
 
 // --- SUPABASE PROXY CALL ---
 async function callInfermedica(path, method = 'POST', body = null) {
-  const res = await fetch('https://your-project.functions.supabase.co/triage', {
+  const res = await fetch('https://zzwdnekgsdyxdzyhuafk.supabase.co/functions/v1/triage', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ path, method, body })
