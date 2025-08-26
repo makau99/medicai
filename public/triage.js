@@ -10,33 +10,34 @@ let age = 0;
 // --- Networking ---
 async function callInfermedica(action, payload) {
   try {
-    const res = await fetch(SUPABASE_FN_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Accept": "application/json",
-        "apikey": SUPABASE_ANON_KEY,
-        "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
-      },
-      body: JSON.stringify({ action, payload })
-    });
+    const response = await fetch(
+      "https://zzwdnekgsdyxdzyhuafk.supabase.co/functions/v1/triage",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          action: action,    // e.g., "triage"
+          payload: payload   // must include sex, age, evidence
+        })
+      }
+    );
 
-    const raw = await res.text();
+    const raw = await response.text();
     console.log("Raw response:", raw);
 
-    if (!res.ok) throw new Error(`Supabase error ${res.status}: ${raw}`);
-
-    try {
-      return JSON.parse(raw);
-    } catch {
-      return raw;
+    if (!response.ok) {
+      throw new Error(`Supabase error ${response.status}: ${raw}`);
     }
+
+    return JSON.parse(raw);
   } catch (err) {
     console.error("callInfermedica failed:", err);
-    showError("Connection failed. See console for details.");
     throw err;
   }
 }
+
 
 function showError(message) {
   const box = document.getElementById("summary-box");
