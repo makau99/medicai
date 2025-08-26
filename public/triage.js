@@ -74,7 +74,7 @@ function showSuggestions(list) {
 
   list.forEach(item => {
     const div = document.createElement("div");
-    div.textContent = `${item.name || item.id}`;
+    div.textContent = `${item.name} (${item.id})`;
     div.style.cursor = "pointer";
     div.onclick = () => {
       document.getElementById("symptomInput").value = item.name;
@@ -106,6 +106,7 @@ async function startDiagnosis() {
   }
 }
 
+// --- Question & Results Renderer ---
 function renderDiagnosis(data) {
   const qBox = document.getElementById("question-box");
   const sBox = document.getElementById("summary-box");
@@ -117,11 +118,19 @@ function renderDiagnosis(data) {
     return;
   }
 
+  // --- Conditions Display ---
   if (!data.question && Array.isArray(data.conditions)) {
-    sBox.innerHTML = "<h3>Conditions</h3>";
+    sBox.innerHTML = "<h3>Possible Conditions</h3>";
     data.conditions.forEach(c => {
+      const prob = (c.probability * 100).toFixed(1);
+      const redIntensity = Math.floor(c.probability * 255); // 0-255
       const div = document.createElement("div");
-      div.innerHTML = `<strong>${c.common_name}</strong> - ${(c.probability * 100).toFixed(1)}%`;
+      div.style.backgroundColor = `rgba(255, ${255 - redIntensity}, ${255 - redIntensity}, 0.2)`;
+      div.style.border = "1px solid #ccc";
+      div.style.padding = "8px";
+      div.style.margin = "5px 0";
+      div.style.borderRadius = "6px";
+      div.innerHTML = `<strong>${c.common_name}</strong> - ${prob}%`;
       sBox.appendChild(div);
     });
 
@@ -143,58 +152,56 @@ function renderDiagnosis(data) {
     return;
   }
 
+  // --- Questions (Single & Multiple) ---
   if (data.question) {
     const p = document.createElement("p");
     p.textContent = data.question.text;
     qBox.appendChild(p);
 
-    const btns = document.createElement("div");
-    const isMultiple = data.question.type === "group_multiple";
+    if (data.question.type === "group_multiple") {
+      const selections = new Map();
 
-    (data.question.items || []).forEach(item => {
-      if (isMultiple) {
-        const container = document.createElement("div");
+      (data.question.items || []).forEach(item => {
         item.choices.forEach(choice => {
+          const label = document.createElement("label");
           const checkbox = document.createElement("input");
           checkbox.type = "checkbox";
-          checkbox.id = choice.id;
-          const label = document.createElement("label");
-          label.htmlFor = choice.id;
-          label.textContent = choice.label;
-          container.appendChild(checkbox);
-          container.appendChild(label);
-          container.appendChild(document.createElement("br"));
-        });
-
-        const submit = document.createElement("button");
-        submit.textContent = "Submit choices";
-        submit.onclick = async () => {
-          item.choices.forEach(choice => {
-            if (document.getElementById(choice.id).checked) {
-              evidence.push({ id: item.id, choice_id: choice.id });
+          checkbox.value = choice.id;
+          checkbox.onchange = () => {
+            if (checkbox.checked) {
+              selections.set(item.id, { id: item.id, choice_id: choice.id });
+            } else {
+              selections.delete(item.id);
             }
-          });
-          try {
-            const data = await callInfermedica("diagnosis", { sex, age: { value: age }, evidence });
-            renderDiagnosis(data);
-          } catch {
-            showError("Failed to submit multiple answers");
-          }
-        };
-        container.appendChild(submit);
-        btns.appendChild(container);
 
-      } else {
+            const allSelected = (data.question.items || []).every(i => selections.has(i.id));
+            if (allSelected) {
+              selections.forEach(sel => evidence.push(sel));
+              proceedDiagnosis();
+            }
+          };
+          label.appendChild(checkbox);
+          label.appendChild(document.createTextNode(choice.label));
+          qBox.appendChild(label);
+          qBox.appendChild(document.createElement("br"));
+        });
+      });
+    } else {
+      (data.question.items || []).forEach(item => {
         item.choices.forEach(choice => {
           const b = document.createElement("button");
           b.textContent = choice.label;
           b.onclick = () => answerQuestion(item.id, choice.id);
-          btns.appendChild(b);
+          qBox.appendChild(b);
         });
-      }
-    });
-    qBox.appendChild(btns);
+      });
+    }
   }
+}
+
+async function proceedDiagnosis() {
+  const data = await callInfermedica("diagnosis", { sex, age: { value: age }, evidence });
+  renderDiagnosis(data);
 }
 
 async function answerQuestion(symptomId, choiceId) {
