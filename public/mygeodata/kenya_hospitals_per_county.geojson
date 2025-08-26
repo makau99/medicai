@@ -48,6 +48,11 @@
 { "type": "Feature", "properties": { "Name": "Migori County Referral Hospital", "County": "Migori", "Latitude": -1.0634, "Longitude": 34.4731 }, "geometry": { "type": "Point", "coordinates": [ 34.4731, -1.0634 ] } },
 { "type": "Feature", "properties": { "Name": "Kisii Teaching & Referral Hospital", "County": "Kisii", "Latitude": -0.6838, "Longitude": 34.7774 }, "geometry": { "type": "Point", "coordinates": [ 34.7774, -0.6838 ] } },
 { "type": "Feature", "properties": { "Name": "Nyamira County Referral Hospital", "County": "Nyamira", "Latitude": -0.5692, "Longitude": 34.9397 }, "geometry": { "type": "Point", "coordinates": [ 34.9397, -0.5692 ] } },
-{ "type": "Feature", "properties": { "Name": "Kenyatta National Hospital", "County": "Nairobi", "Latitude": -1.3001, "Longitude": 36.8065 }, "geometry": { "type": "Point", "coordinates": [ 36.8065, -1.3001 ] } }
+{ "type": "Feature", "properties": { "Name": "Kenyatta National Hospital", "County": "Nairobi", "Latitude": -1.3001, "Longitude": 36.8065 }, "geometry": { "type": "Point", "coordinates": [ 36.8065, -1.3001 ] } },
+{ "type": "Feature", "properties": { "Name": "Matuu Level 4 Hospital", "County": "Machakos", "Latitude": -1.148099, "Longitude": 37.534611 }, "geometry": { "type": "Point", "coordinates": [37.534611, -1.148099] }},
+{ "type": "Feature", "properties": { "Name": "Thika Level 5 Hospital", "County": "Kiambu", "Latitude": -1.033333, "Longitude": 37.083333 }, "geometry": { "type": "Point", "coordinates": [37.083333, -1.033333] } },
+{ "type": "Feature", "properties": { "Name": "Ruiru Level 4 Hospital", "County": "Kiambu", "Latitude": -1.161111, "Longitude": 36.944444 }, "geometry": { "type": "Point", "coordinates": [36.944444, -1.161111] } },
+{ "type": "Feature", "properties": { "Name": "Gatundu Level 4 Hospital", "County": "Kiambu", "Latitude": -1.171667, "Longitude": 36.836111 }, "geometry": { "type": "Point", "coordinates": [36.836111, -1.171667] } }
+
 ]
 }

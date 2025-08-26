@@ -40,8 +40,12 @@ body {
   text-transform: uppercase;
   transition: color 0.3s;
 }
-.navbar ul li a.active { color: rgb(100, 100, 214); }
-.navbar ul li a:hover { color: rgb(100, 100, 214); }
+.nav-links ul li a.active { 
+    color: rgb(100, 100, 214); 
+}
+.nav-links ul li a:hover { 
+    color: rgb(100, 100, 214); 
+}
 
 button, select {
   padding: 8px 15px;
@@ -54,9 +58,13 @@ button, select {
   cursor: pointer;
   transition: 0.3s;
 }
-button:hover, select:hover {
+button:hover, 
+select:hover {
   background-color: #572717;
   color: white;
+}
+.active {
+  color: rgb(100, 100, 214);
 }
 
 /* ✅ Main content */
@@ -117,7 +125,7 @@ button:hover, select:hover {
 }
 .icon { width: 50px; height: auto; }
 
-.logbut{
+#logbut{
   background-color: transparent;
   height: 50px;
   border-radius: 20px;
@@ -127,22 +135,6 @@ button:hover, select:hover {
   border: 1px solid #572717;
   color: #572717;
   transition: 0.3s;
-}
-#createBtn, #title, #date, #branch {
-  background-color: transparent;
-  height: 40px;
-  border-radius: 20px;
-  width: 120px;
-  cursor: pointer;
-  font-size: 15px;
-  border: 1px solid #572717;
-  color: #572717;
-  transition: 0.3s;
-  margin: 5px;
-}
-#logbut:hover, #createBtn:hover, .logbut:hover {
-  background-color: #572717;
-  color: white;
 }
 
 /* TOGGLE BUTTON (Mobile only) */
@@ -158,7 +150,9 @@ button:hover, select:hover {
 
 /* Responsive Styles */
 @media (max-width: 768px) {
-  .menu-toggle { display: block; }
+  .menu-toggle { 
+    display: block;
+  }
   .nav-wrapper {
     position: absolute;
     display: none;
@@ -173,9 +167,10 @@ button:hover, select:hover {
     z-index: 1000;
     border: 1px solid #572717;
   }
-  .nav-wrapper.show { display: flex; }
+  .nav-wrapper.show {
+     display: flex; 
+}
   .nav-links {
-    display: flex;
     flex-direction: column;
     gap: 0.75rem;
     width: 100%;
@@ -192,9 +187,6 @@ button:hover, select:hover {
     left: 0;
     text-align: center;
   }
-  .navbar { padding: 0 1rem; }
-  .brand .name { font-size: 18px; }
-  .menu-toggle { font-size: 24px; }
 }
 @media (min-width: 769px) {
   .nav-wrapper {

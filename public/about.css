@@ -111,17 +111,13 @@ button:hover, select:hover {
   scroll-margin-top: 80px;
 }
 
-.about-card h1 {
+.about-card h1, 
+.about-card h2 {
   font-size: clamp(2rem, 5vw, 3rem);
   margin-bottom: 1rem;
   color: #005f73;
 }
 
-.about-card h2 {
-  font-size: 2rem;
-  margin: 2rem 0 1rem;
-  color: #0a9396;
-}
 
 .about-card p {
   font-size: 1.2rem;
