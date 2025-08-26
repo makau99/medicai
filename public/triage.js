@@ -26,17 +26,17 @@ function askInitialDetails() {
   `;
 }
 
-// --- SUPABASE PROXY CALL ---
-async function callInfermedica(path, method = 'POST', body = null) {
+// --- SUPABASE EDGE FUNCTION CALL ---
+async function callInfermedica(path, body) {
   const res = await fetch('https://zzwdnekgsdyxdzyhuafk.supabase.co/functions/v1/triage', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ path, method, body })
+    body: JSON.stringify(body)
   });
   return res.json();
 }
 
-// --- AUTOCOMPLETE SUGGESTIONS ---
+// --- SUGGEST SYMPTOMS ---
 async function suggestSymptoms(query) {
   const container = document.getElementById('suggestions');
   if (query.length < 2) return container.innerHTML = '';
@@ -45,7 +45,7 @@ async function suggestSymptoms(query) {
   const ageValue = document.getElementById('age')?.value || 30;
 
   try {
-    const data = await callInfermedica('search', 'POST', {
+    const data = await callInfermedica('search', {
       phrase: query,
       sex: selectedSex,
       age: { value: ageValue },
@@ -81,7 +81,7 @@ async function startTriage() {
   if (!symptomId) return alert('Please select a symptom.');
 
   evidence = [{ id: symptomId, choice_id: 'present', source: 'initial' }];
-  const data = await callInfermedica('diagnosis', 'POST', { sex, age: { value: age }, evidence });
+  const data = await callInfermedica('diagnosis', { sex, age: { value: age }, evidence });
   showQuestion(data);
 }
 
@@ -105,7 +105,6 @@ async function showQuestion(data) {
     return;
   }
 
-  // Render current question
   const questionText = document.createElement('p');
   questionText.textContent = data.question.text;
   box.appendChild(questionText);
@@ -128,7 +127,7 @@ async function showQuestion(data) {
 // --- ANSWER QUESTION ---
 async function answerQuestion(symptomId, choiceId) {
   evidence.push({ id: symptomId, choice_id: choiceId });
-  const data = await callInfermedica('diagnosis', 'POST', { sex, age: { value: age }, evidence });
+  const data = await callInfermedica('diagnosis', { sex, age: { value: age }, evidence });
   showQuestion(data);
 }
 
