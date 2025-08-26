@@ -1,4 +1,111 @@
-// --- Question Rendering ---
+const SUPABASE_FN_URL = "https://zzwdnekgsdyxdzyhuafk.supabase.co/functions/v1/triage";
+
+let evidence = [];
+let sex = "";
+let age = 0;
+
+// --- Networking ---
+async function callInfermedica(action, payload) {
+  try {
+    const response = await fetch(SUPABASE_FN_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action, payload })
+    });
+
+    const raw = await response.text();
+    console.log("Raw response:", raw);
+
+    if (!response.ok) {
+      throw new Error(`Supabase error ${response.status}: ${raw}`);
+    }
+
+    return JSON.parse(raw);
+  } catch (err) {
+    console.error("callInfermedica failed:", err);
+    throw err;
+  }
+}
+
+function showError(message) {
+  const box = document.getElementById("summary-box");
+  if (box) box.innerHTML = `<p style="color:red">${message}</p>`;
+}
+
+// --- UI Initialization ---
+function initUI() {
+  document.getElementById("input-box").innerHTML = `
+    <label>Sex:
+      <select id="sex">
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+      </select>
+    </label><br/>
+    <label>Age: 
+      <input type="number" id="age" value="30" min="0" max="120"/>
+    </label><br/>
+    <label>Main Symptom:
+      <input type="text" id="symptomInput" placeholder="e.g. headache" />
+      <input type="hidden" id="symptomIdHidden"/>
+    </label>
+    <div id="suggestions"></div><br/>
+    <button id="start-triage-btn">Start Diagnosis</button>
+  `;
+
+  document.getElementById("symptomInput").addEventListener("input", debounce(async (e) => {
+    const query = e.target.value;
+    if (query.length < 2) return;
+    try {
+      const data = await callInfermedica("search", { phrase: query, sex: "male", age: { value: 30 } });
+      showSuggestions(data);
+    } catch {
+      showError("No suggestions found.");
+    }
+  }, 300));
+
+  document.getElementById("start-triage-btn").addEventListener("click", startDiagnosis);
+}
+
+// --- Suggestions ---
+function showSuggestions(list) {
+  const container = document.getElementById("suggestions");
+  container.innerHTML = "";
+  if (!Array.isArray(list)) return;
+
+  list.forEach(item => {
+    const div = document.createElement("div");
+    div.textContent = `${item.name || item.id}`;
+    div.style.cursor = "pointer";
+    div.onclick = () => {
+      document.getElementById("symptomInput").value = item.name;
+      document.getElementById("symptomIdHidden").value = item.id;
+      container.innerHTML = "";
+    };
+    container.appendChild(div);
+  });
+}
+
+// --- Diagnosis Flow ---
+async function startDiagnosis() {
+  sex = document.getElementById("sex").value;
+  age = parseInt(document.getElementById("age").value, 10);
+  const symptomId = document.getElementById("symptomIdHidden").value;
+
+  if (!symptomId) {
+    showError("Please select a symptom from suggestions.");
+    return;
+  }
+
+  evidence = [{ id: symptomId, choice_id: "present", source: "initial" }];
+
+  try {
+    const data = await callInfermedica("diagnosis", { sex, age: { value: age }, evidence });
+    renderDiagnosis(data);
+  } catch {
+    showError("Diagnosis failed.");
+  }
+}
+
 function renderDiagnosis(data) {
   const qBox = document.getElementById("question-box");
   const sBox = document.getElementById("summary-box");
@@ -41,54 +148,80 @@ function renderDiagnosis(data) {
     p.textContent = data.question.text;
     qBox.appendChild(p);
 
-    if (data.question.type === "group_multiple") {
-      const selections = new Set();
-      (data.question.items || []).forEach(item => {
+    const btns = document.createElement("div");
+    const isMultiple = data.question.type === "group_multiple";
+
+    (data.question.items || []).forEach(item => {
+      if (isMultiple) {
+        const container = document.createElement("div");
         item.choices.forEach(choice => {
-          const label = document.createElement("label");
           const checkbox = document.createElement("input");
           checkbox.type = "checkbox";
-          checkbox.value = choice.id;
-          checkbox.onchange = () => {
-            if (checkbox.checked) {
-              selections.add({ id: item.id, choice_id: choice.id });
-            } else {
-              selections.forEach(sel => {
-                if (sel.id === item.id && sel.choice_id === choice.id) {
-                  selections.delete(sel);
-                }
-              });
-            }
-            // Auto-submit when all items have at least one selected choice
-            const allItemsSelected = (data.question.items || []).every(i =>
-              [...selections].some(sel => sel.id === i.id)
-            );
-            if (allItemsSelected) {
-              selections.forEach(sel => evidence.push(sel));
-              proceedDiagnosis();
-            }
-          };
-          label.appendChild(checkbox);
-          label.appendChild(document.createTextNode(choice.label));
-          qBox.appendChild(label);
-          qBox.appendChild(document.createElement("br"));
+          checkbox.id = choice.id;
+          const label = document.createElement("label");
+          label.htmlFor = choice.id;
+          label.textContent = choice.label;
+          container.appendChild(checkbox);
+          container.appendChild(label);
+          container.appendChild(document.createElement("br"));
         });
-      });
-    } else {
-      // Single choice
-      (data.question.items || []).forEach(item => {
+
+        const submit = document.createElement("button");
+        submit.textContent = "Submit choices";
+        submit.onclick = async () => {
+          item.choices.forEach(choice => {
+            if (document.getElementById(choice.id).checked) {
+              evidence.push({ id: item.id, choice_id: choice.id });
+            }
+          });
+          try {
+            const data = await callInfermedica("diagnosis", { sex, age: { value: age }, evidence });
+            renderDiagnosis(data);
+          } catch {
+            showError("Failed to submit multiple answers");
+          }
+        };
+        container.appendChild(submit);
+        btns.appendChild(container);
+
+      } else {
         item.choices.forEach(choice => {
           const b = document.createElement("button");
           b.textContent = choice.label;
           b.onclick = () => answerQuestion(item.id, choice.id);
-          qBox.appendChild(b);
+          btns.appendChild(b);
         });
-      });
-    }
+      }
+    });
+    qBox.appendChild(btns);
   }
 }
 
-async function proceedDiagnosis() {
+async function answerQuestion(symptomId, choiceId) {
+  evidence.push({ id: symptomId, choice_id: choiceId });
   const data = await callInfermedica("diagnosis", { sex, age: { value: age }, evidence });
   renderDiagnosis(data);
 }
+
+// --- Triage Renderer ---
+function renderTriage(data) {
+  const sBox = document.getElementById("summary-box");
+  sBox.innerHTML = `
+    <h3>Triage Result</h3>
+    <p><strong>Urgency:</strong> ${data.triage_level || "Unknown"}</p>
+    <p><strong>Recommendation:</strong> ${data.recommendation || "No specific recommendation"}</p>
+    ${data.serious ? `<p><strong>Serious:</strong> ${data.serious.join(", ")}</p>` : ""}
+  `;
+}
+
+// --- Helpers ---
+function debounce(fn, delay = 300) {
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), delay);
+  };
+}
+
+// --- Start ---
+document.addEventListener("DOMContentLoaded", initUI);
