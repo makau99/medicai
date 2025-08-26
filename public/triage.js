@@ -149,14 +149,32 @@ function renderDiagnosis(data) {
     qBox.appendChild(p);
 
     const btns = document.createElement("div");
-    (data.question.items || []).forEach(item => {
+  (data.question.items || []).forEach(item => {
+    const itemLabel = document.createElement("p");
+    itemLabel.textContent = item.name || "Select an option:";
+    btns.appendChild(itemLabel);
+  
+    // Detect time-related questions
+    const isDuration = item.type === "duration" || item.question_type === "duration";
+  
+    if (isDuration && item.choices) {
+      // Show time-based options (if available)
       item.choices.forEach(choice => {
+        const b = document.createElement("button");
+        b.textContent = choice.label; // Usually like "1 day", "1 week"
+        b.onclick = () => answerQuestion(item.id, choice.id);
+        btns.appendChild(b);
+      });
+    } else {
+      // Default: Yes/No/Don't know
+      (item.choices || []).forEach(choice => {
         const b = document.createElement("button");
         b.textContent = choice.label;
         b.onclick = () => answerQuestion(item.id, choice.id);
         btns.appendChild(b);
       });
-    });
+    }
+  });
     qBox.appendChild(btns);
   }
 }
