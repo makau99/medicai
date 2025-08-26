@@ -28,18 +28,27 @@ function askInitialDetails() {
 }
 
 async function callInfermedica(action, payload) {
-  const res = await fetch(SUPABASE_FN_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ action, payload }),
-  });
-  // If the function returned non-OK, read text for debugging
-  if (!res.ok) {
-    const txt = await res.text();
-    console.error("Supabase function returned", res.status, txt);
-    throw new Error("Function error: " + res.status);
+  try {
+    const res = await fetch("https://zzwdnekgsdyxdzyhuafk.supabase.co/functions/v1/triage", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6d2RuZWtnc2R5eGR6eWh1YWZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI1ODM4MjcsImV4cCI6MjA2ODE1OTgyN30.Bw3UgVe_RjvX_HfxEn1HrPkzJ6N4KpIFahKe0lxMSmg"
+      },
+      body: JSON.stringify({ action, payload }),
+    });
+
+    if (!res.ok) {
+      const err = await res.text();
+      console.error("Supabase function returned", res.status, err);
+      throw new Error(`Function error: ${res.status}`);
+    }
+
+    return await res.json();
+  } catch (err) {
+    console.error("callInfermedica error:", err);
+    throw err;
   }
-  return res.json();
 }
 
 async function suggestSymptoms(query) {
