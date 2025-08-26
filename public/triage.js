@@ -1,4 +1,3 @@
-<script>
 const SUPABASE_FN_URL = "https://zzwdnekgsdyxdzyhuafk.supabase.co/functions/v1/triage";
 
 let evidence = [];
@@ -75,7 +74,7 @@ function showSuggestions(list) {
 
   list.forEach(item => {
     const div = document.createElement("div");
-    div.textContent = `${item.name} (${item.id})`; // show both name & ID
+    div.textContent = `${item.name} (${item.id})`;
     div.style.cursor = "pointer";
     div.onclick = () => {
       document.getElementById("symptomInput").value = item.name;
@@ -107,6 +106,7 @@ async function startDiagnosis() {
   }
 }
 
+// --- Question & Results Renderer ---
 function renderDiagnosis(data) {
   const qBox = document.getElementById("question-box");
   const sBox = document.getElementById("summary-box");
@@ -118,11 +118,19 @@ function renderDiagnosis(data) {
     return;
   }
 
+  // --- Conditions Display ---
   if (!data.question && Array.isArray(data.conditions)) {
-    sBox.innerHTML = "<h3>Conditions</h3>";
+    sBox.innerHTML = "<h3>Possible Conditions</h3>";
     data.conditions.forEach(c => {
+      const prob = (c.probability * 100).toFixed(1);
+      const redIntensity = Math.floor(c.probability * 255); // 0-255
       const div = document.createElement("div");
-      div.innerHTML = `<strong>${c.common_name}</strong> - ${(c.probability * 100).toFixed(1)}%`;
+      div.style.backgroundColor = `rgba(255, ${255 - redIntensity}, ${255 - redIntensity}, 0.2)`;
+      div.style.border = "1px solid #ccc";
+      div.style.padding = "8px";
+      div.style.margin = "5px 0";
+      div.style.borderRadius = "6px";
+      div.innerHTML = `<strong>${c.common_name}</strong> - ${prob}%`;
       sBox.appendChild(div);
     });
 
@@ -144,26 +152,56 @@ function renderDiagnosis(data) {
     return;
   }
 
+  // --- Questions (Single & Multiple) ---
   if (data.question) {
-    const qTitle = document.createElement("h4");
-    qTitle.textContent = data.question.text;
-    qBox.appendChild(qTitle);
+    const p = document.createElement("p");
+    p.textContent = data.question.text;
+    qBox.appendChild(p);
 
-    (data.question.items || []).forEach(item => {
-      const itemWrapper = document.createElement("div");
-      itemWrapper.style.margin = "8px 0";
+    if (data.question.type === "group_multiple") {
+      const selections = new Map();
 
-      // If it's a duration-type question, display time-based choices
-      (item.choices || []).forEach(choice => {
-        const btn = document.createElement("button");
-        btn.textContent = choice.label;
-        btn.onclick = () => answerQuestion(item.id, choice.id);
-        itemWrapper.appendChild(btn);
+      (data.question.items || []).forEach(item => {
+        item.choices.forEach(choice => {
+          const label = document.createElement("label");
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.value = choice.id;
+          checkbox.onchange = () => {
+            if (checkbox.checked) {
+              selections.set(item.id, { id: item.id, choice_id: choice.id });
+            } else {
+              selections.delete(item.id);
+            }
+
+            const allSelected = (data.question.items || []).every(i => selections.has(i.id));
+            if (allSelected) {
+              selections.forEach(sel => evidence.push(sel));
+              proceedDiagnosis();
+            }
+          };
+          label.appendChild(checkbox);
+          label.appendChild(document.createTextNode(choice.label));
+          qBox.appendChild(label);
+          qBox.appendChild(document.createElement("br"));
+        });
       });
-
-      qBox.appendChild(itemWrapper);
-    });
+    } else {
+      (data.question.items || []).forEach(item => {
+        item.choices.forEach(choice => {
+          const b = document.createElement("button");
+          b.textContent = choice.label;
+          b.onclick = () => answerQuestion(item.id, choice.id);
+          qBox.appendChild(b);
+        });
+      });
+    }
   }
+}
+
+async function proceedDiagnosis() {
+  const data = await callInfermedica("diagnosis", { sex, age: { value: age }, evidence });
+  renderDiagnosis(data);
 }
 
 async function answerQuestion(symptomId, choiceId) {
@@ -194,4 +232,3 @@ function debounce(fn, delay = 300) {
 
 // --- Start ---
 document.addEventListener("DOMContentLoaded", initUI);
-</script>
