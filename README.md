@@ -1,96 +1,139 @@
-# 🏥 MedicAI – Hospital Appointment & Triage Web App
+# 🏥 MedicAI – Hospital Appointment & Triage Web App  
 
-A responsive, student-built web application for booking hospital appointments, triaging symptoms, and locating nearby hospitals in Kenya. This system simplifies hospital access through an intuitive interface and integrated location intelligence.
-
----
-
-## 🚀 Features
-
-- 🔐 **User Authentication** via Supabase
-- 🤖 **Symptom Checker (Triage)** powered by AI prompts
-- 🗺️ **Hospital Locator** using Google Maps and GeoJSON data
-- 📅 **Appointment Booking** with real-time Supabase integration
-- 🌐 **Responsive UI** with a clean glassmorphism aesthetic
-- 🔎 **Location-aware** recommendations based on proximity
+A responsive, student-built web application that streamlines hospital access in Kenya.  
+MedicAI allows users to **triage symptoms**, **book appointments**, and **locate nearby hospitals** through an intuitive interface enhanced with **location intelligence** and **AI-driven triage**.  
 
 ---
 
-## 📁 Project Structure
+## 📸 UI Preview  
 
+> *(Add screenshots/GIFs of your app here once available)*  
+
+- 🏠 **Home Page** – Glassmorphism landing page with blurred navbar  
+- 🔐 **Login/Signup** – Supabase authentication (secure access)  
+- 📅 **Appointments Page** – Real-time hospital appointment booking  
+- 🗺️ **Maps Page** – Google Maps with hospital GeoJSON overlay  
+- 🤖 **Triage Page** – Infermedica-powered symptom checker  
+- 📊 **Dashboard** – Personalized overview of appointments & health insights  
+
+---
+
+## 🚀 Features  
+
+- 🔐 **User Authentication** with **Supabase** (signup, login, logout, session handling)  
+- 📅 **Appointment Booking** – Store & fetch user appointments from Supabase  
+- 🤖 **AI-powered Symptom Triage** – Powered by **Infermedica API v3**  
+  - Autocomplete symptom search  
+  - Evidence assessment workflow  
+  - Emergency detection  
+  - Diagnosis summary with progress indicators  
+- 🗺️ **Hospital Locator** – Interactive **Google Maps** + **GeoJSON dataset**  
+- 📍 **Location-aware Recommendations** – Hospitals suggested based on proximity  
+- 🌐 **Responsive UI** – Glassmorphism, blurred navbar, and **Quicksand font**  
+- 📊 **Dashboard View** – Cards, progress bars, and warm-tone theme  
+
+---
+
+## 📁 Project Structure  
+
+```
 /
-├── home.html
-├── appointments.html
-├── maps.html
-├── triage.html
-├── about.html
-├── login.html
-├── dashboard.html
+├── home.html               # Landing page
+├── login.html              # User login
+├── signup.html             # User signup
+├── dashboard.html          # User dashboard (auth required)
+├── appointments.html       # Appointment booking (auth required)
+├── maps.html               # Hospital locator with Google Maps
+├── triage.html             # AI-powered symptom checker
+├── about.html              # About/credits page
+│
 ├── assets/
-│ ├── icon.png
-│ ├── liquid-cheese.png
-│ └── mygeodata/kenya_hospitals_per_county.geojson
+│   ├── icon.png            # App icon
+│   ├── liquid-cheese.png   # Background pattern
+│   └── mygeodata/kenya_hospitals_per_county.geojson
+│
 ├── styles/
-│ ├── appointments.css
-│ ├── maps.css
-│ └── shared.css
+│   ├── shared.css          # Global theme (navbar, fonts, glassmorphism)
+│   ├── home.css
+│   ├── appointments.css
+│   ├── maps.css
+│   ├── triage.css
+│   └── dashboard.css
+│
 └── README.md
-
-## 💻 Technologies Used
-
-| Stack | Description |
-|-------|-------------|
-| **HTML5** | Frontend markup |
-| **CSS3** | Layout and styling (Glassmorphism) |
-| **JavaScript (Vanilla)** | Dynamic behavior & Supabase integration |
-| **Supabase** | Auth & Database for appointments |
-| **Google Maps API** | Hospital locator with directions |
-| **GeoJSON** | Hospital data by county |
-| **Font** | [Google Fonts – Quicksand](https://fonts.google.com/specimen/Quicksand) |
-
----
-
-## 👨‍💻 Developer Profile
-
-**Evans Makau**  
-🎓 *Student, Aspiring Software Developer & Data Scientist*  
-💡 Passionate about using code to solve real life problems. Based in Kenya.
-
----
-
-## ⚙️ Setup & Deployment
-
-### Prerequisites
-- Internet connection (for Supabase and Google Maps API)
-- Browser (latest Chrome, Firefox, etc.)
-- Optional: VS Code or any code editor
-
-### Running the Project
-
-1. Clone this repository or download ZIP  
+```
 2. Open `home.html` in your browser  
-3. Ensure the following resources are correctly linked:
-   - Google Maps API Key in `maps.html`
-   - Supabase credentials in `appointments.html`
+
+3. Configure credentials:  
+
+   - **Supabase**:  
+     Add your `SUPABASE_URL` and `SUPABASE_KEY` in:  
+     - `appointments.html`  
+     - `login.html`  
+     - `signup.html`  
+     - `dashboard.html`  
+
+   - **Google Maps API**:  
+     Insert API key inside `maps.html` `<script>` tag  
+
+   - **Infermedica API**:  
+     Update headers (`App-Id`, `App-Key`, `Interview-Id`) in `triage.html`  
+
+4. Start using the app 🚀  
 
 ---
 
-## 📌 Notes
+## 📌 Notes  
 
-- 🗂️ You can find hospital location data in `mygeodata/kenya_hospitals_per_county.geojson`
-- 🧠 Triage system uses basic prompt buttons simulating AI guidance
-- 📍 Hospital branches are dynamically pulled into appointments
-- 🔒 Auth is required to access `appointments.html` and `dashboard.html`
+- 🗂️ Hospital location data lives at:  
+  `assets/mygeodata/kenya_hospitals_per_county.geojson`  
+
+- 🧠 Triage workflow:  
+  1. Autocomplete symptoms  
+  2. Add evidence  
+  3. Emergency check  
+  4. Get summary (diagnosis + next steps)  
+
+- 🔒 Protected Pages:  
+  - `appointments.html`  
+  - `dashboard.html`  
+
+- 📱 Fully **responsive design**: works on mobile & desktop  
+
+---
+
+## 🗺️ Roadmap  
+
+- [x] Authentication with Supabase  
+- [x] Appointment booking integration  
+- [x] Google Maps hospital locator  
+- [x] AI-powered triage workflow  
+- [ ] Add doctor/admin panel  
+- [ ] Enable SMS/email reminders for appointments  
+- [ ] Deploy app on **Netlify / Vercel / GitHub Pages**  
 
 ---
 
-## 🔖 Tags
+## 🤝 Contribution  
 
-`#html` `#css` `#javascript` `#healthtech` `#supabase` `#google-maps` `#student-project` `#glassmorphism` `#kenya` `#geojson` `#triage` `#appointments` `#location-aware`
+Want to contribute?  
+
+1. Fork the repository  
+2. Create a feature branch (`feature-new-ui`)  
+3. Commit changes (`git commit -m "Added new feature"`)  
+4. Push branch (`git push origin feature-new-ui`)  
+5. Open a Pull Request 🎉  
 
 ---
 
-## 📜 License
+## 🔖 Tags  
 
-This project was developed for educational purposes and is free to use, modify, and learn from.
+`#html` `#css` `#javascript` `#supabase` `#infermedica` `#google-maps`  
+`#geojson` `#healthtech` `#glassmorphism` `#student-project` `#kenya`  
 
 ---
+
+## 📜 License  
+
+This project is for **educational purposes**.  
+You are free to **use, adapt, and improve** it for learning or community health projects.  
