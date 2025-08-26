@@ -74,7 +74,7 @@ function showSuggestions(list) {
 
   list.forEach(item => {
     const div = document.createElement("div");
-    div.textContent = `${item.name || item.label} (${item.id})`;
+    div.textContent = item.name || item.label;
     div.style.cursor = "pointer";
     div.onclick = () => {
       document.getElementById("symptomInput").value = item.name || item.label;
