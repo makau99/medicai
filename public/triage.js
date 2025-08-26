@@ -1,7 +1,4 @@
-// triage.js — fixed version (plain JS, matches your HTML)
-
 const SUPABASE_FN_URL = "https://zzwdnekgsdyxdzyhuafk.supabase.co/functions/v1/triage";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6d2RuZWtnc2R5eGR6eWh1YWZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI1ODM4MjcsImV4cCI6MjA2ODE1OTgyN30.Bw3UgVe_RjvX_HfxEn1HrPkzJ6N4KpIFahKe0lxMSmg";
 
 let evidence = [];
 let sex = "";
@@ -10,19 +7,11 @@ let age = 0;
 // --- Networking ---
 async function callInfermedica(action, payload) {
   try {
-    const response = await fetch(
-      "https://zzwdnekgsdyxdzyhuafk.supabase.co/functions/v1/triage",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          action: action,    // e.g., "triage"
-          payload: payload   // must include sex, age, evidence
-        })
-      }
-    );
+    const response = await fetch(SUPABASE_FN_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action, payload })
+    });
 
     const raw = await response.text();
     console.log("Raw response:", raw);
@@ -38,7 +27,6 @@ async function callInfermedica(action, payload) {
   }
 }
 
-
 function showError(message) {
   const box = document.getElementById("summary-box");
   if (box) box.innerHTML = `<p style="color:red">${message}</p>`;
@@ -52,19 +40,16 @@ function initUI() {
         <option value="male">Male</option>
         <option value="female">Female</option>
       </select>
-    </label>
-    <br/>
+    </label><br/>
     <label>Age: 
       <input type="number" id="age" value="30" min="0" max="120"/>
-    </label>
-    <br/>
+    </label><br/>
     <label>Main Symptom:
       <input type="text" id="symptomInput" placeholder="e.g. headache" />
       <input type="hidden" id="symptomIdHidden"/>
     </label>
-    <div id="suggestions"></div>
-    <br/>
-    <button id="start-triage-btn">Start Triage</button>
+    <div id="suggestions"></div><br/>
+    <button id="start-triage-btn">Start Diagnosis</button>
   `;
 
   document.getElementById("symptomInput").addEventListener("input", debounce(async (e) => {
@@ -78,7 +63,7 @@ function initUI() {
     }
   }, 300));
 
-  document.getElementById("start-triage-btn").addEventListener("click", startTriage);
+  document.getElementById("start-triage-btn").addEventListener("click", startDiagnosis);
 }
 
 // --- Suggestions ---
@@ -100,8 +85,8 @@ function showSuggestions(list) {
   });
 }
 
-// --- Triage Flow ---
-async function startTriage() {
+// --- Diagnosis Flow ---
+async function startDiagnosis() {
   sex = document.getElementById("sex").value;
   age = parseInt(document.getElementById("age").value, 10);
   const symptomId = document.getElementById("symptomIdHidden").value;
@@ -117,7 +102,7 @@ async function startTriage() {
     const data = await callInfermedica("diagnosis", { sex, age: { value: age }, evidence });
     renderDiagnosis(data);
   } catch {
-    showError("Triage failed.");
+    showError("Diagnosis failed.");
   }
 }
 
@@ -139,6 +124,22 @@ function renderDiagnosis(data) {
       div.innerHTML = `<strong>${c.common_name}</strong> - ${(c.probability * 100).toFixed(1)}%`;
       sBox.appendChild(div);
     });
+
+    const triageBtn = document.createElement("button");
+    triageBtn.textContent = "Check Urgency";
+    triageBtn.onclick = async () => {
+      try {
+        const triageData = await callInfermedica("triage", {
+          sex,
+          age: { value: age },
+          evidence
+        });
+        renderTriage(triageData);
+      } catch {
+        showError("Triage failed.");
+      }
+    };
+    sBox.appendChild(triageBtn);
     return;
   }
 
@@ -164,6 +165,17 @@ async function answerQuestion(symptomId, choiceId) {
   evidence.push({ id: symptomId, choice_id: choiceId });
   const data = await callInfermedica("diagnosis", { sex, age: { value: age }, evidence });
   renderDiagnosis(data);
+}
+
+// --- Triage Renderer ---
+function renderTriage(data) {
+  const sBox = document.getElementById("summary-box");
+  sBox.innerHTML = `
+    <h3>Triage Result</h3>
+    <p><strong>Urgency:</strong> ${data.triage_level || "Unknown"}</p>
+    <p><strong>Recommendation:</strong> ${data.recommendation || "No specific recommendation"}</p>
+    ${data.serious ? `<p><strong>Serious:</strong> ${data.serious.join(", ")}</p>` : ""}
+  `;
 }
 
 // --- Helpers ---
