@@ -74,14 +74,25 @@ function showSuggestions(list) {
 
   list.forEach(item => {
     const div = document.createElement("div");
-    div.textContent = item.label || item.common_name || "Unknown symptom";
+    const label = item.name || item.label || "Unknown Symptom";
+    div.textContent = label;
     div.style.cursor = "pointer";
-    div.onclick = () => {
-      document.getElementById("symptomInput").value = item.label || item.common_name;
 
+    // --- Touch event for mobile ---
+    div.addEventListener("touchstart", (e) => {
+      e.preventDefault(); // prevent ghost click
+      document.getElementById("symptomInput").value = label;
       document.getElementById("symptomIdHidden").value = item.id;
       container.innerHTML = "";
-    };
+    }, { passive: false });
+
+    // --- Click event for desktop ---
+    div.addEventListener("click", () => {
+      document.getElementById("symptomInput").value = label;
+      document.getElementById("symptomIdHidden").value = item.id;
+      container.innerHTML = "";
+    });
+
     container.appendChild(div);
   });
 }
