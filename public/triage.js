@@ -1,271 +1,178 @@
-// triage.js — fully corrected & robust version
+// triage.js — fixed version (plain JS, matches your HTML)
+
 const SUPABASE_FN_URL = "https://zzwdnekgsdyxdzyhuafk.supabase.co/functions/v1/triage";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6d2RuZWtnc2R5eGR6eWh1YWZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI1ODM4MjcsImV4cCI6MjA2ODE1OTgyN30.Bw3UgVe_RjvX_HfxEn1HrPkzJ6N4KpIFahKe0lxMSmg"; // <-- REPLACE
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6d2RuZWtnc2R5eGR6eWh1YWZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI1ODM4MjcsImV4cCI6MjA2ODE1OTgyN30.Bw3UgVe_RjvX_HfxEn1HrPkzJ6N4KpIFahKe0lxMSmg";
 
 let evidence = [];
 let sex = "";
 let age = 0;
 
-// --- Helpers ---
-function ensureContainers() {
-  if (!document.getElementById("input-box")) {
-    const el = document.createElement("div");
-    el.id = "input-box";
-    document.body.prepend(el);
-  }
-  if (!document.getElementById("question-box")) {
-    const el = document.createElement("div");
-    el.id = "question-box";
-    document.body.appendChild(el);
-  }
-  if (!document.getElementById("summary-box")) {
-    const el = document.createElement("div");
-    el.id = "summary-box";
-    document.body.appendChild(el);
-  }
-}
-
-function debounce(fn, wait = 300) {
-  let t;
-  return (...args) => {
-    clearTimeout(t);
-    t = setTimeout(() => fn(...args), wait);
-  };
-}
-
-function showError(message, where = "suggestions") {
-  const container = document.getElementById(where) || document.getElementById("summary-box");
-  if (container) container.innerHTML = `<div class="error" style="color:red">${message}</div>`;
-  console.error(message);
-}
-
 // --- Networking ---
 async function callInfermedica(action, payload) {
   try {
-    const body = { action, payload };
-    console.log("Sending to Supabase:", body);
-
     const res = await fetch(SUPABASE_FN_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Accept": "application/json",
         "apikey": SUPABASE_ANON_KEY,
-        "Authorization": `Bearer ${SUPABASE_ANON_KEY}` // some setups accept both
+        "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify({ action, payload })
     });
 
     const raw = await res.text();
-    console.log("Raw response text:", raw);
+    console.log("Raw response:", raw);
 
-    if (!res.ok) {
-      // provide the raw body for easier debugging
-      console.error("Supabase function returned", res.status, raw);
-      throw new Error(`Function error: ${res.status} - ${raw}`);
-    }
+    if (!res.ok) throw new Error(`Supabase error ${res.status}: ${raw}`);
 
-    // try to parse JSON (may throw)
     try {
       return JSON.parse(raw);
-    } catch (err) {
-      console.warn("Failed to parse JSON:", err);
+    } catch {
       return raw;
     }
   } catch (err) {
-    console.error("callInfermedica error:", err);
+    console.error("callInfermedica failed:", err);
+    showError("Connection failed. See console for details.");
     throw err;
   }
 }
 
-// --- UI Setup ---
-function askInitialDetails() {
-  ensureContainers();
+function showError(message) {
+  const box = document.getElementById("summary-box");
+  if (box) box.innerHTML = `<p style="color:red">${message}</p>`;
+}
 
-  const box = document.getElementById("input-box");
-  box.innerHTML = `
-    <label>Sex:<br />
+// --- UI Initialization ---
+function initUI() {
+  document.getElementById("input-box").innerHTML = `
+    <label>Sex:
       <select id="sex">
         <option value="male">Male</option>
         <option value="female">Female</option>
       </select>
     </label>
-    <br />
-    <label>Age: <br />
-      <input type="number" id="age" value="30" min="0" max="120" />
+    <br/>
+    <label>Age: 
+      <input type="number" id="age" value="30" min="0" max="120"/>
     </label>
-    <br />
-    <label>Main symptom:<br/>
-      <input type="text" id="symptomInput" placeholder="Start typing..." autocomplete="off" />
-      <input type="hidden" id="symptomIdHidden" value="" />
+    <br/>
+    <label>Main Symptom:
+      <input type="text" id="symptomInput" placeholder="e.g. headache" />
+      <input type="hidden" id="symptomIdHidden"/>
     </label>
-    <div id="suggestions" style="position:relative;"></div>
+    <div id="suggestions"></div>
     <br/>
     <button id="start-triage-btn">Start Triage</button>
   `;
 
-  // attach listeners (debounced)
-  const symptomInput = document.getElementById("symptomInput");
-  const debouncedSuggest = debounce((val) => suggestSymptoms(val), 300);
-  symptomInput.addEventListener("input", (e) => debouncedSuggest(e.target.value));
+  document.getElementById("symptomInput").addEventListener("input", debounce(async (e) => {
+    const query = e.target.value;
+    if (query.length < 2) return;
+    try {
+      const data = await callInfermedica("search", { phrase: query, sex: "male", age: { value: 30 } });
+      showSuggestions(data);
+    } catch {
+      showError("No suggestions found.");
+    }
+  }, 300));
 
   document.getElementById("start-triage-btn").addEventListener("click", startTriage);
 }
 
-// --- Suggest / Search ---
-async function suggestSymptoms(query) {
+// --- Suggestions ---
+function showSuggestions(list) {
   const container = document.getElementById("suggestions");
   container.innerHTML = "";
-  if (!query || query.length < 2) return;
+  if (!Array.isArray(list)) return;
 
-  const selectedSex = document.getElementById("sex")?.value || "male";
-  const ageValue = parseInt(document.getElementById("age")?.value || 30, 10);
-
-  try {
-    const data = await callInfermedica("search", { phrase: query, sex: selectedSex, age: { value: ageValue } });
-
-    if (!Array.isArray(data)) {
-      showError("No suggestions (unexpected response)", "suggestions");
-      console.warn("search response:", data);
-      return;
-    }
-
-    // Build suggestion list (click sets id + label)
-    container.innerHTML = data
-      .map((item) => {
-        const label = item.name || item.label || item.id;
-        const id = item.id || label;
-        // escape single quotes for inline onclick handler
-        const safeLabel = String(label).replace(/'/g, "\\'");
-        return `<div class="suggest-item" data-id="${id}" style="cursor:pointer;padding:6px;border-bottom:1px solid #eee;">${safeLabel}</div>`;
-      })
-      .join("");
-
-    // attach click handlers
-    container.querySelectorAll(".suggest-item").forEach((el) => {
-      el.addEventListener("click", () => {
-        const id = el.getAttribute("data-id");
-        const label = el.textContent || id;
-        selectSymptom(id, label);
-      });
-    });
-  } catch (err) {
-    showError("Failed to fetch suggestions", "suggestions");
-    console.error("suggestSymptoms error:", err);
-  }
+  list.forEach(item => {
+    const div = document.createElement("div");
+    div.textContent = item.name || item.id;
+    div.style.cursor = "pointer";
+    div.onclick = () => {
+      document.getElementById("symptomInput").value = item.name;
+      document.getElementById("symptomIdHidden").value = item.id;
+      container.innerHTML = "";
+    };
+    container.appendChild(div);
+  });
 }
 
-function selectSymptom(symptomId, label) {
-  const visible = document.getElementById("symptomInput");
-  const hidden = document.getElementById("symptomIdHidden");
-  if (visible) visible.value = label;
-  if (hidden) hidden.value = symptomId;
-  const container = document.getElementById("suggestions");
-  if (container) container.innerHTML = "";
-}
-
-// --- Triage / Diagnosis flow ---
+// --- Triage Flow ---
 async function startTriage() {
-  sex = document.getElementById("sex")?.value || "male";
-  age = parseInt(document.getElementById("age")?.value || "30", 10);
-  const symptomId = document.getElementById("symptomIdHidden")?.value?.trim();
+  sex = document.getElementById("sex").value;
+  age = parseInt(document.getElementById("age").value, 10);
+  const symptomId = document.getElementById("symptomIdHidden").value;
 
   if (!symptomId) {
-    // If user typed an ID manually into visible input, try that as fallback:
-    const visibleVal = document.getElementById("symptomInput")?.value?.trim();
-    if (visibleVal && visibleVal.length > 0) {
-      // it's safer to require the user select from suggestions, but we'll allow a fallback
-      showError("You didn't select a symptom from suggestions; using visible input as id (best to click a suggestion).", "summary-box");
-    }
+    showError("Please select a symptom from suggestions.");
+    return;
   }
 
-  evidence = [];
-  if (symptomId) evidence.push({ id: symptomId, choice_id: "present", source: "initial" });
+  evidence = [{ id: symptomId, choice_id: "present", source: "initial" }];
 
   try {
-    const triageData = await callInfermedica("diagnosis", { sex, age: { value: age }, evidence });
-    showQuestion(triageData);
-  } catch (err) {
-    showError("Triage failed. See console for details.", "summary-box");
-    console.error("startTriage error:", err);
+    const data = await callInfermedica("diagnosis", { sex, age: { value: age }, evidence });
+    renderDiagnosis(data);
+  } catch {
+    showError("Triage failed.");
   }
 }
 
-function showQuestion(data) {
-  const box = document.getElementById("question-box");
-  const summary = document.getElementById("summary-box");
-  box.innerHTML = "";
-  summary.innerHTML = "";
-
-  if (!data) {
-    summary.innerHTML = "<p>No response</p>";
-    return;
-  }
+function renderDiagnosis(data) {
+  const qBox = document.getElementById("question-box");
+  const sBox = document.getElementById("summary-box");
+  qBox.innerHTML = "";
+  sBox.innerHTML = "";
 
   if (data.has_emergency_evidence) {
-    summary.innerHTML = `<h3 style="color:red;">⚠️ Emergency detected. Seek immediate care.</h3>`;
-  }
-
-  // If there's no question, show conditions summary
-  if (!data.question) {
-    if (Array.isArray(data.conditions) && data.conditions.length) {
-      displaySummary(data.conditions);
-    } else {
-      summary.innerHTML += "<p>No condition identified.</p>";
-    }
+    sBox.innerHTML = `<h3 style="color:red;">Emergency detected — seek care!</h3>`;
     return;
   }
 
-  // show question text
-  const q = document.createElement("p");
-  q.textContent = data.question.text || "Question:";
-  box.appendChild(q);
-
-  const opt = document.createElement("div");
-  opt.className = "option-buttons";
-
-  // Each question item may have choices
-  (data.question.items || []).forEach((item) => {
-    item.choices.forEach((choice) => {
-      const btn = document.createElement("button");
-      btn.textContent = choice.label || choice.id;
-      btn.addEventListener("click", () => answerQuestion(item.id, choice.id));
-      opt.appendChild(btn);
+  if (!data.question && Array.isArray(data.conditions)) {
+    sBox.innerHTML = "<h3>Conditions</h3>";
+    data.conditions.forEach(c => {
+      const div = document.createElement("div");
+      div.innerHTML = `<strong>${c.common_name}</strong> - ${(c.probability * 100).toFixed(1)}%`;
+      sBox.appendChild(div);
     });
-  });
+    return;
+  }
 
-  box.appendChild(opt);
+  if (data.question) {
+    const p = document.createElement("p");
+    p.textContent = data.question.text;
+    qBox.appendChild(p);
+
+    const btns = document.createElement("div");
+    (data.question.items || []).forEach(item => {
+      item.choices.forEach(choice => {
+        const b = document.createElement("button");
+        b.textContent = choice.label;
+        b.onclick = () => answerQuestion(item.id, choice.id);
+        btns.appendChild(b);
+      });
+    });
+    qBox.appendChild(btns);
+  }
 }
 
 async function answerQuestion(symptomId, choiceId) {
   evidence.push({ id: symptomId, choice_id: choiceId });
-  try {
-    const data = await callInfermedica("diagnosis", { sex, age: { value: age }, evidence });
-    showQuestion(data);
-  } catch (err) {
-    showError("Failed to answer question.", "summary-box");
-    console.error("answerQuestion error:", err);
-  }
+  const data = await callInfermedica("diagnosis", { sex, age: { value: age }, evidence });
+  renderDiagnosis(data);
 }
 
-function displaySummary(conditions) {
-  const container = document.getElementById("summary-box");
-  container.innerHTML = "<h3>Summary</h3>";
-  conditions.forEach((c) => {
-    const card = document.createElement("div");
-    card.className = "summary-card";
-    card.style.border = "1px solid #ddd";
-    card.style.padding = "8px";
-    card.style.margin = "6px 0";
-    card.innerHTML = `<p><strong>${c.common_name || c.name}</strong></p>
-                      <p>Probability: ${( (c.probability || 0) * 100).toFixed(1)}%</p>`;
-    container.appendChild(card);
-  });
+// --- Helpers ---
+function debounce(fn, delay = 300) {
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), delay);
+  };
 }
 
-// --- Init ---
-document.addEventListener("DOMContentLoaded", () => {
-  ensureContainers();
-  askInitialDetails();
-  console.log("triage.js loaded");
-});
+// --- Start ---
+document.addEventListener("DOMContentLoaded", initUI);
