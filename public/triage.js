@@ -29,12 +29,12 @@ function askInitialDetails() {
 
 async function callInfermedica(action, payload) {
   try {
-    console.log("Sending to Supabase:",{ action, payload );
+    console.log("Sending to Supabase:", { action, payload });
     const res = await fetch(SUPABASE_FN_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "apikey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6d2RuZWtnc2R5eGR6eWh1YWZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI1ODM4MjcsImV4cCI6MjA2ODE1OTgyN30.Bw3UgVe_RjvX_HfxEn1HrPkzJ6N4KpIFahKe0lxMSmg" // Replace with your project's anon key from Supabase > Project Settings > API
+        "apikey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6d2RuZWtnc2R5eGR6eWh1YWZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI1ODM4MjcsImV4cCI6MjA2ODE1OTgyN30.Bw3UgVe_RjvX_HfxEn1HrPkzJ6N4KpIFahKe0lxMSmg"
       },
       body: JSON.stringify({ action, payload }),
     });
@@ -52,7 +52,6 @@ async function callInfermedica(action, payload) {
   }
 }
 
-
 async function suggestSymptoms(query) {
   const container = document.getElementById("suggestions");
   if (!query || query.length < 2) {
@@ -64,9 +63,9 @@ async function suggestSymptoms(query) {
 
   try {
     const data = await callInfermedica("search", { 
-      payload: { phrase: query, sex: selectedSex, age: { value: ageValue } }
-  });
-    // EXPECT data to be an array
+      phrase: query, sex: selectedSex, age: { value: ageValue }
+    });
+
     if (!Array.isArray(data)) {
       console.warn("Unexpected response:", data);
       container.innerHTML = `<div style="color:red;">No suggestions</div>`;
@@ -94,8 +93,9 @@ async function startTriage() {
 
   evidence = [{ id: symptomId, choice_id: "present", source: "initial" }];
   try {
-   const triageData = await callInfermedica("diagnosis", { payload: { sex, age: { value: age }, evidence }
-});
+    const triageData = await callInfermedica("diagnosis", { 
+      sex, age: { value: age }, evidence 
+    });
     showQuestion(triageData);
   } catch (err) {
     console.error("startTriage error:", err);
@@ -149,8 +149,9 @@ function showQuestion(data) {
 async function answerQuestion(symptomId, choiceId) {
   evidence.push({ id: symptomId, choice_id: choiceId });
   try {
-    const data = await callInfermedica("diagnosis", { payload: { sex, age: { value: age }, evidence }
-});
+    const data = await callInfermedica("diagnosis", { 
+      sex, age: { value: age }, evidence 
+    });
     showQuestion(data);
   } catch (err) {
     console.error("answerQuestion error:", err);
