@@ -74,10 +74,10 @@ function showSuggestions(list) {
 
   list.forEach(item => {
     const div = document.createElement("div");
-    div.textContent = item.name || item.id;
+    div.textContent = `${item.name || item.label} (${item.id})`;
     div.style.cursor = "pointer";
     div.onclick = () => {
-      document.getElementById("symptomInput").value = item.name;
+      document.getElementById("symptomInput").value = item.name || item.label;
       document.getElementById("symptomIdHidden").value = item.id;
       container.innerHTML = "";
     };
