@@ -29,14 +29,14 @@ function askInitialDetails() {
 
 async function callInfermedica(action, payload) {
   try {
-    console.log("Sending to Supabase:",{ action, ...payload );
+    console.log("Sending to Supabase:",{ action, payload );
     const res = await fetch(SUPABASE_FN_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "apikey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6d2RuZWtnc2R5eGR6eWh1YWZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI1ODM4MjcsImV4cCI6MjA2ODE1OTgyN30.Bw3UgVe_RjvX_HfxEn1HrPkzJ6N4KpIFahKe0lxMSmg" // Replace with your project's anon key from Supabase > Project Settings > API
       },
-      body: JSON.stringify({ action,...payload}),
+      body: JSON.stringify({ action, payload }),
     });
 
     if (!res.ok) {
@@ -63,7 +63,9 @@ async function suggestSymptoms(query) {
   const ageValue = document.getElementById("age")?.value || 30;
 
   try {
-    const data = await callInfermedica("search", { phrase: query, sex: selectedSex, age: { value: ageValue } });
+    const data = await callInfermedica("search", { 
+      payload: { phrase: query, sex: selectedSex, age: { value: ageValue } }
+  });
     // EXPECT data to be an array
     if (!Array.isArray(data)) {
       console.warn("Unexpected response:", data);
@@ -92,7 +94,8 @@ async function startTriage() {
 
   evidence = [{ id: symptomId, choice_id: "present", source: "initial" }];
   try {
-    const triageData = await callInfermedica("diagnosis", { sex, age: { value: age }, evidence });
+   const triageData = await callInfermedica("diagnosis", { payload: { sex, age: { value: age }, evidence }
+});
     showQuestion(triageData);
   } catch (err) {
     console.error("startTriage error:", err);
@@ -146,7 +149,8 @@ function showQuestion(data) {
 async function answerQuestion(symptomId, choiceId) {
   evidence.push({ id: symptomId, choice_id: choiceId });
   try {
-    const data = await callInfermedica("diagnosis", { sex, age: { value: age }, evidence });
+    const data = await callInfermedica("diagnosis", { payload: { sex, age: { value: age }, evidence }
+});
     showQuestion(data);
   } catch (err) {
     console.error("answerQuestion error:", err);
