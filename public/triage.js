@@ -74,13 +74,25 @@ function showSuggestions(list) {
 
   list.forEach(item => {
     const div = document.createElement("div");
-    div.textContent = item.name || item.id;
+    const label = item.name || item.label || "Unknown Symptom";
+    div.textContent = label;
     div.style.cursor = "pointer";
-    div.onclick = () => {
-      document.getElementById("symptomInput").value = item.name;
+
+    // --- Touch event for mobile ---
+    div.addEventListener("touchstart", (e) => {
+      e.preventDefault(); // prevent ghost click
+      document.getElementById("symptomInput").value = label;
       document.getElementById("symptomIdHidden").value = item.id;
       container.innerHTML = "";
-    };
+    }, { passive: false });
+
+    // --- Click event for desktop ---
+    div.addEventListener("click", () => {
+      document.getElementById("symptomInput").value = label;
+      document.getElementById("symptomIdHidden").value = item.id;
+      container.innerHTML = "";
+    });
+
     container.appendChild(div);
   });
 }
@@ -106,6 +118,7 @@ async function startDiagnosis() {
   }
 }
 
+// --- Question & Results Renderer ---
 function renderDiagnosis(data) {
   const qBox = document.getElementById("question-box");
   const sBox = document.getElementById("summary-box");
@@ -117,11 +130,19 @@ function renderDiagnosis(data) {
     return;
   }
 
+  // --- Conditions Display ---
   if (!data.question && Array.isArray(data.conditions)) {
-    sBox.innerHTML = "<h3>Conditions</h3>";
+    sBox.innerHTML = "<h3>Possible Conditions</h3>";
     data.conditions.forEach(c => {
+      const prob = (c.probability * 100).toFixed(1);
+      const redIntensity = Math.floor(c.probability * 255); // 0-255
       const div = document.createElement("div");
-      div.innerHTML = `<strong>${c.common_name}</strong> - ${(c.probability * 100).toFixed(1)}%`;
+      div.style.backgroundColor = `rgba(255, ${255 - redIntensity}, ${255 - redIntensity}, 0.2)`;
+      div.style.border = "1px solid #ccc";
+      div.style.padding = "8px";
+      div.style.margin = "5px 0";
+      div.style.borderRadius = "6px";
+      div.innerHTML = `<strong>${c.common_name}</strong> - ${prob}%`;
       sBox.appendChild(div);
     });
 
@@ -143,41 +164,56 @@ function renderDiagnosis(data) {
     return;
   }
 
+  // --- Questions (Single & Multiple) ---
   if (data.question) {
     const p = document.createElement("p");
     p.textContent = data.question.text;
     qBox.appendChild(p);
 
-    (data.question.items || []).forEach(item => {
-      const itemBox = document.createElement("div");
-      itemBox.style.marginBottom = "10px";
+    if (data.question.type === "group_multiple") {
+      const selections = new Map();
 
-      // label for this specific symptom/item
-      const itemLabel = document.createElement("p");
-      itemLabel.textContent = item.name || item.id;
-      itemBox.appendChild(itemLabel);
+      (data.question.items || []).forEach(item => {
+        item.choices.forEach(choice => {
+          const label = document.createElement("label");
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.value = choice.id;
+          checkbox.onchange = () => {
+            if (checkbox.checked) {
+              selections.set(item.id, { id: item.id, choice_id: choice.id });
+            } else {
+              selections.delete(item.id);
+            }
 
-      // add buttons for this item only
-      item.choices.forEach(choice => {
-        const b = document.createElement("button");
-        b.textContent = choice.label;
-
-        // highlight when selected
-        b.onclick = () => {
-          // remove old highlight
-          [...itemBox.querySelectorAll("button")].forEach(btn => btn.style.backgroundColor = "");
-          b.style.backgroundColor = "#d4edda";
-
-          // answer
-          answerQuestion(item.id, choice.id);
-        };
-
-        itemBox.appendChild(b);
+            const allSelected = (data.question.items || []).every(i => selections.has(i.id));
+            if (allSelected) {
+              selections.forEach(sel => evidence.push(sel));
+              proceedDiagnosis();
+            }
+          };
+          label.appendChild(checkbox);
+          label.appendChild(document.createTextNode(choice.label));
+          qBox.appendChild(label);
+          qBox.appendChild(document.createElement("br"));
+        });
       });
-
-      qBox.appendChild(itemBox);
-    });
+    } else {
+      (data.question.items || []).forEach(item => {
+        item.choices.forEach(choice => {
+          const b = document.createElement("button");
+          b.textContent = choice.label;
+          b.onclick = () => answerQuestion(item.id, choice.id);
+          qBox.appendChild(b);
+        });
+      });
+    }
   }
+}
+
+async function proceedDiagnosis() {
+  const data = await callInfermedica("diagnosis", { sex, age: { value: age }, evidence });
+  renderDiagnosis(data);
 }
 
 async function answerQuestion(symptomId, choiceId) {
