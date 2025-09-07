@@ -148,21 +148,46 @@ function renderDiagnosis(data) {
     p.textContent = data.question.text;
     qBox.appendChild(p);
 
-    const btns = document.createElement("div");
     (data.question.items || []).forEach(item => {
+      const itemBox = document.createElement("div");
+      itemBox.style.marginBottom = "10px";
+
+      // label for this specific symptom/item
+      const itemLabel = document.createElement("p");
+      itemLabel.textContent = item.name || item.id;
+      itemBox.appendChild(itemLabel);
+
+      // add buttons for this item only
       item.choices.forEach(choice => {
         const b = document.createElement("button");
         b.textContent = choice.label;
-        b.onclick = () => answerQuestion(item.id, choice.id);
-        btns.appendChild(b);
+
+        // highlight when selected
+        b.onclick = () => {
+          // remove old highlight
+          [...itemBox.querySelectorAll("button")].forEach(btn => btn.style.backgroundColor = "");
+          b.style.backgroundColor = "#d4edda";
+
+          // answer
+          answerQuestion(item.id, choice.id);
+        };
+
+        itemBox.appendChild(b);
       });
+
+      qBox.appendChild(itemBox);
     });
-    qBox.appendChild(btns);
   }
 }
 
 async function answerQuestion(symptomId, choiceId) {
+  // remove any old entry for this symptom
+  evidence = evidence.filter(e => e.id !== symptomId);
+
+  // add the new choice
   evidence.push({ id: symptomId, choice_id: choiceId });
+
+  // call diagnosis again
   const data = await callInfermedica("diagnosis", { sex, age: { value: age }, evidence });
   renderDiagnosis(data);
 }
