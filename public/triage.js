@@ -96,7 +96,24 @@ function showSuggestions(list) {
     container.appendChild(div);
   });
 }
+// --- Diagnosis Flow --- 
+async function startDiagnosis() { 
+  sex = document.getElementById("sex").value; 
+  age = parseInt(document.getElementById("age").value, 10); 
+  const symptomId = document.getElementById("symptomIdHidden").value; 
+  if (!symptomId) { 
+    showError("Please select a symptom from suggestions."); 
+    return; 
+  } 
+  evidence = [{ id: symptomId, choice_id: "present", source: "initial" }]; 
 
+  try { 
+    const data = await callInfermedica("diagnosis", { sex, age: { value: age }, evidence }); 
+    renderDiagnosis(data); 
+} catch { 
+    showError("Diagnosis failed."); 
+  }
+}
 function renderDiagnosis(data) {
   const qBox = document.getElementById("question-box");
   const sBox = document.getElementById("summary-box");
