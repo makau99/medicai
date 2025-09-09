@@ -97,45 +97,24 @@ function showSuggestions(list) {
   });
 }
 
-// --- Diagnosis Flow ---
-async function startDiagnosis() {
-  sex = document.getElementById("sex").value;
-  age = parseInt(document.getElementById("age").value, 10);
-  const symptomId = document.getElementById("symptomIdHidden").value;
-
-  if (!symptomId) {
-    showError("Please select a symptom from suggestions.");
-    return;
-  }
-
-  evidence = [{ id: symptomId, choice_id: "present", source: "initial" }];
-
-  try {
-    const data = await callInfermedica("diagnosis", { sex, age: { value: age }, evidence });
-    renderDiagnosis(data);
-  } catch {
-    showError("Diagnosis failed.");
-  }
-}
-
-// --- Question & Results Renderer ---
 function renderDiagnosis(data) {
   const qBox = document.getElementById("question-box");
   const sBox = document.getElementById("summary-box");
   qBox.innerHTML = "";
   sBox.innerHTML = "";
 
+  // Emergency handling
   if (data.has_emergency_evidence) {
     sBox.innerHTML = `<h3 style="color:red;">Emergency detected — seek care!</h3>`;
     return;
   }
 
-  // --- Conditions Display ---
+  // Show conditions if no more questions
   if (!data.question && Array.isArray(data.conditions)) {
     sBox.innerHTML = "<h3>Possible Conditions</h3>";
     data.conditions.forEach(c => {
       const prob = (c.probability * 100).toFixed(1);
-      const redIntensity = Math.floor(c.probability * 255); // 0-255
+      const redIntensity = Math.floor(c.probability * 255);
       const div = document.createElement("div");
       div.style.backgroundColor = `rgba(255, ${255 - redIntensity}, ${255 - redIntensity}, 0.2)`;
       div.style.border = "1px solid #ccc";
@@ -146,6 +125,7 @@ function renderDiagnosis(data) {
       sBox.appendChild(div);
     });
 
+    // Button to run triage
     const triageBtn = document.createElement("button");
     triageBtn.textContent = "Check Urgency";
     triageBtn.onclick = async () => {
@@ -164,16 +144,39 @@ function renderDiagnosis(data) {
     return;
   }
 
-  // --- Questions (Single & Multiple) ---
+  // Handle new question
   if (data.question) {
     const p = document.createElement("p");
     p.textContent = data.question.text;
     qBox.appendChild(p);
 
-    if (data.question.type === "group_multiple") {
+    // --- Case 1: group_single ---
+    if (data.question.type === "group_single") {
+      (data.question.items || []).forEach(item => {
+        const itemLabel = document.createElement("p");
+        itemLabel.textContent = item.name;
+        itemLabel.style.fontWeight = "bold";
+        qBox.appendChild(itemLabel);
+
+        item.choices.forEach(choice => {
+          const b = document.createElement("button");
+          b.textContent = choice.label;
+          b.onclick = () => answerQuestion(item.id, choice.id);
+          qBox.appendChild(b);
+        });
+        qBox.appendChild(document.createElement("br"));
+      });
+    }
+
+    // --- Case 2: group_multiple ---
+    else if (data.question.type === "group_multiple") {
       const selections = new Map();
 
       (data.question.items || []).forEach(item => {
+        const itemLabel = document.createElement("p");
+        itemLabel.textContent = item.name;
+        qBox.appendChild(itemLabel);
+
         item.choices.forEach(choice => {
           const label = document.createElement("label");
           const checkbox = document.createElement("input");
@@ -186,6 +189,7 @@ function renderDiagnosis(data) {
               selections.delete(item.id);
             }
 
+            // proceed when all items have answers
             const allSelected = (data.question.items || []).every(i => selections.has(i.id));
             if (allSelected) {
               selections.forEach(sel => evidence.push(sel));
@@ -198,8 +202,15 @@ function renderDiagnosis(data) {
           qBox.appendChild(document.createElement("br"));
         });
       });
-    } else {
+    }
+
+    // --- Case 3: fallback (single) ---
+    else {
       (data.question.items || []).forEach(item => {
+        const itemLabel = document.createElement("p");
+        itemLabel.textContent = item.name;
+        qBox.appendChild(itemLabel);
+
         item.choices.forEach(choice => {
           const b = document.createElement("button");
           b.textContent = choice.label;
@@ -210,6 +221,7 @@ function renderDiagnosis(data) {
     }
   }
 }
+
 
 async function proceedDiagnosis() {
   const data = await callInfermedica("diagnosis", { sex, age: { value: age }, evidence });
